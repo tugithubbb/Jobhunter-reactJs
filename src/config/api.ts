@@ -35,7 +35,7 @@ export const callCreateCompany = (name: string, address: string, description: st
 }
 
 export const callUpdateCompany = (id: string, name: string, address: string, description: string) => {
-    return axios.patch<IBackendRes<ICompany>>(`/api/v1/companies/${id}`, { name, address, description })
+    return axios.put<IBackendRes<ICompany>>(`/api/v1/companies`, { id, name, address, description })
 }
 
 export const callDeleteCompany = (id: string) => {
@@ -56,7 +56,7 @@ export const callCreateUser = (user: IUser) => {
 }
 
 export const callUpdateUser = (user: IUser) => {
-    return axios.patch<IBackendRes<IUser>>(`/api/v1/users`, { ...user })
+    return axios.put<IBackendRes<IUser>>(`/api/v1/users`, { ...user })
 }
 
 export const callDeleteUser = (id: string) => {

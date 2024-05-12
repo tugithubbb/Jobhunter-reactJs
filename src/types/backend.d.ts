@@ -18,7 +18,7 @@ export interface IModelPaginate<T> {
 export interface IAccount {
     access_token: string;
     user: {
-        _id: string;
+        id: string;
         role: string;
         email: string;
         name: string
@@ -28,7 +28,7 @@ export interface IAccount {
 export interface IGetAccount extends Omit<IAccount, "access_token"> { }
 
 export interface ICompany {
-    _id?: string;
+    id?: string;
     name?: string;
     address?: string;
     description?: string;
@@ -42,7 +42,7 @@ export interface ICompany {
 
 
 export interface IUser {
-    _id?: string;
+    id?: string;
     name: string;
     email: string;
     password?: string;
@@ -51,7 +51,7 @@ export interface IUser {
     address: string;
     role?: string;
     company?: {
-        _id: string;
+        id: string;
         name: string;
     }
     createdBy?: string;

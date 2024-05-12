@@ -1,7 +1,11 @@
+import { Link } from "react-router-dom";
+
 const HomePage = () => {
     return (
-        <div>
-            homepage
+        <div style={{ margin: "50px 20px" }}>
+            <h3>
+                <Link to={"/admin"}>Go to Admin</Link>
+            </h3>
         </div>
     )
 }

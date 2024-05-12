@@ -32,7 +32,7 @@ const ModalCompany = (props: IProps) => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        if (dataInit?._id && dataInit?.description) {
+        if (dataInit?.id && dataInit?.description) {
             setValue(dataInit.description);
         }
     }, [dataInit])
@@ -40,9 +40,9 @@ const ModalCompany = (props: IProps) => {
     const submitCompany = async (valuesForm: ICompanyForm) => {
         const { name, address } = valuesForm;
 
-        if (dataInit?._id) {
+        if (dataInit?.id) {
             //update
-            const res = await callUpdateCompany(dataInit._id, name, address, value);
+            const res = await callUpdateCompany(dataInit.id, name, address, value);
             if (res.data) {
                 message.success("Cập nhật company thành công");
                 handleReset();
@@ -85,7 +85,7 @@ const ModalCompany = (props: IProps) => {
         <>
             {openModal &&
                 <ModalForm
-                    title={<>{dataInit?._id ? "Cập nhật Company" : "Tạo mới Company"}</>}
+                    title={<>{dataInit?.id ? "Cập nhật Company" : "Tạo mới Company"}</>}
                     open={openModal}
                     modalProps={{
                         onCancel: () => { handleReset() },
@@ -102,7 +102,7 @@ const ModalCompany = (props: IProps) => {
                     preserve={false}
                     form={form}
                     onFinish={submitCompany}
-                    initialValues={dataInit?._id ? dataInit : {}}
+                    initialValues={dataInit?.id ? dataInit : {}}
                     submitter={{
                         render: (_, dom) => <FooterToolbar>{dom}</FooterToolbar>,
                         submitButtonProps: {
@@ -110,7 +110,7 @@ const ModalCompany = (props: IProps) => {
                         },
                         searchConfig: {
                             resetText: "Hủy",
-                            submitText: <>{dataInit?._id ? "Cập nhật" : "Tạo mới"}</>,
+                            submitText: <>{dataInit?.id ? "Cập nhật" : "Tạo mới"}</>,
                         }
                     }}
                 >

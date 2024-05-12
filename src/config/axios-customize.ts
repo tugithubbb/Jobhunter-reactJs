@@ -64,7 +64,7 @@ instance.interceptors.response.use(
             && +error.response.status === 400
             && error.config.url === '/api/v1/auth/refresh'
         ) {
-            const message = error?.response?.data?.message ?? "Có lỗi xảy ra, vui lòng login.";
+            const message = error?.response?.data?.error ?? "Có lỗi xảy ra, vui lòng login.";
             //dispatch redux action
             store.dispatch(setRefreshTokenAction({ status: true, message }));
         }
