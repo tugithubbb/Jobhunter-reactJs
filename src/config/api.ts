@@ -1,4 +1,4 @@
-import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume } from '@/types/backend';
+import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, ISkill } from '@/types/backend';
 import axios from 'config/axios-customize';
 
 /**
@@ -30,14 +30,15 @@ export const callLogout = () => {
  */
 export const callUploadSingleFile = (file: any, folderType: string) => {
     const bodyFormData = new FormData();
-    bodyFormData.append('fileUpload', file);
+    bodyFormData.append('file', file);
+    bodyFormData.append('folder', folderType);
+
     return axios<IBackendRes<{ fileName: string }>>({
         method: 'post',
-        url: '/api/v1/files/upload',
+        url: '/api/v1/files',
         data: bodyFormData,
         headers: {
             "Content-Type": "multipart/form-data",
-            "folder_type": folderType
         },
     });
 }
@@ -68,6 +69,27 @@ export const callFetchCompany = (query: string) => {
 export const callFetchCompanyById = (id: string) => {
     return axios.get<IBackendRes<ICompany>>(`/api/v1/companies/${id}`);
 }
+
+/**
+ * 
+Module Skill
+ */
+export const callCreateSkill = (name: string) => {
+    return axios.post<IBackendRes<ISkill>>('/api/v1/skills', { name })
+}
+
+export const callUpdateSkill = (id: string, name: string) => {
+    return axios.put<IBackendRes<ISkill>>(`/api/v1/skills`, { id, name })
+}
+
+export const callDeleteSkill = (id: string) => {
+    return axios.delete<IBackendRes<ISkill>>(`/api/v1/skills/${id}`);
+}
+
+export const callFetchAllSkill = (query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<ISkill>>>(`/api/v1/skills?${query}`);
+}
+
 
 
 /**

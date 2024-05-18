@@ -196,7 +196,7 @@ const ViewUpsertJob = (props: any) => {
                                     allowClear
                                     mode="multiple"
                                     fieldProps={{
-                                        showArrow: false
+                                        suffixIcon: null
                                     }}
 
                                 />

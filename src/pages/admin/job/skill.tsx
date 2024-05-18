@@ -1,30 +1,34 @@
+
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { IJob } from "@/types/backend";
+import { ISkill } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { ActionType, ProColumns, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Popconfirm, Select, Space, Tag, message, notification } from "antd";
+import { ActionType, ProColumns } from '@ant-design/pro-components';
+import { Button, Popconfirm, Space, message, notification } from "antd";
 import { useState, useRef } from 'react';
 import dayjs from 'dayjs';
-import { callDeleteJob } from "@/config/api";
+import { callDeleteSkill } from "@/config/api";
 import queryString from 'query-string';
-import { useNavigate } from "react-router-dom";
-import { fetchJob } from "@/redux/slice/jobSlide";
+import { sfLike } from "spring-filter-query-builder";
+import { fetchSkill } from "@/redux/slice/skillSlide";
+import ModalSkill from "@/components/admin/skill/modal.skill";
 
-const JobPage = () => {
+const SkillPage = () => {
+    const [openModal, setOpenModal] = useState<boolean>(false);
+    const [dataInit, setDataInit] = useState<ISkill | null>(null);
+
     const tableRef = useRef<ActionType>();
 
-    const isFetching = useAppSelector(state => state.job.isFetching);
-    const meta = useAppSelector(state => state.job.meta);
-    const jobs = useAppSelector(state => state.job.result);
+    const isFetching = useAppSelector(state => state.skill.isFetching);
+    const meta = useAppSelector(state => state.skill.meta);
+    const skills = useAppSelector(state => state.skill.result);
     const dispatch = useAppDispatch();
-    const navigate = useNavigate();
 
-    const handleDeleteJob = async (id: string | undefined) => {
+    const handleDeleteSkill = async (id: string | undefined) => {
         if (id) {
-            const res = await callDeleteJob(id);
-            if (res && res.data) {
-                message.success('Xóa Job thành công');
+            const res = await callDeleteSkill(id);
+            if (res && +res.statusCode === 200) {
+                message.success('Xóa Skill thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -39,7 +43,7 @@ const JobPage = () => {
         tableRef?.current?.reload();
     }
 
-    const columns: ProColumns<IJob>[] = [
+    const columns: ProColumns<ISkill>[] = [
         {
             title: 'STT',
             key: 'index',
@@ -54,50 +58,23 @@ const JobPage = () => {
             hideInSearch: true,
         },
         {
-            title: 'Tên Job',
+            title: 'Name',
             dataIndex: 'name',
             sorter: true,
         },
+
         {
-            title: 'Mức lương',
-            dataIndex: 'salary',
-            sorter: true,
-            render(dom, entity, index, action, schema) {
-                const str = "" + entity.salary;
-                return <>{str?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} đ</>
-            },
-        },
-        {
-            title: 'Level',
-            dataIndex: 'level',
-            renderFormItem: (item, props, form) => (
-                <ProFormSelect
-                    showSearch
-                    mode="multiple"
-                    allowClear
-                    valueEnum={{
-                        INTERN: 'INTERN',
-                        FRESHER: 'FRESHER',
-                        JUNIOR: 'JUNIOR',
-                        MIDDLE: 'MIDDLE',
-                        SENIOR: 'SENIOR',
-                    }}
-                    placeholder="Chọn level"
-                />
-            ),
-        },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'isActive',
-            render(dom, entity, index, action, schema) {
-                return <>
-                    <Tag color={entity.isActive ? "lime" : "red"} >
-                        {entity.isActive ? "ACTIVE" : "INACTIVE"}
-                    </Tag>
-                </>
-            },
+            title: 'Created By',
+            dataIndex: 'createdBy',
             hideInSearch: true,
         },
+
+        {
+            title: 'Updated By',
+            dataIndex: 'updatedBy',
+            hideInSearch: true,
+        },
+
 
         {
             title: 'CreatedAt',
@@ -106,7 +83,7 @@ const JobPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -118,7 +95,7 @@ const JobPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -130,6 +107,7 @@ const JobPage = () => {
             width: 50,
             render: (_value, entity, _index, _action) => (
                 <Space>
+
                     <EditOutlined
                         style={{
                             fontSize: 20,
@@ -137,15 +115,16 @@ const JobPage = () => {
                         }}
                         type=""
                         onClick={() => {
-                            navigate(`/admin/job/upsert?id=${entity.id}`)
+                            setOpenModal(true);
+                            setDataInit(entity);
                         }}
                     />
 
                     <Popconfirm
                         placement="leftTop"
-                        title={"Xác nhận xóa job"}
-                        description={"Bạn có chắc chắn muốn xóa job này ?"}
-                        onConfirm={() => handleDeleteJob(entity.id)}
+                        title={"Xác nhận xóa skill"}
+                        description={"Bạn có chắc chắn muốn xóa skill này ?"}
+                        onConfirm={() => handleDeleteSkill(entity.id)}
                         okText="Xác nhận"
                         cancelText="Hủy"
                     >
@@ -166,27 +145,22 @@ const JobPage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        if (clone.name) clone.name = `name ~ '${clone.name}'`;
-        if (clone.salary) clone.salary = `salary ~ '${clone.salary}'`;
-        if (clone?.level?.length) {
-            clone.level = clone.level.join(",");
+        const q: any = {
+            page: params.current,
+            size: params.pageSize,
+            filter: ""
         }
 
-        clone.page = clone.current;
-        clone.size = clone.pageSize;
+        if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
+        if (!q.filter) delete q.filter;
 
-        delete clone.current;
-        delete clone.pageSize;
-
-        let temp = queryString.stringify(clone);
+        let temp = queryString.stringify(q);
 
         let sortBy = "";
         if (sort && sort.name) {
             sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
         }
-        if (sort && sort.salary) {
-            sortBy = sort.salary === 'ascend' ? "sort=salary,asc" : "sort=salary,desc";
-        }
+
         if (sort && sort.createdAt) {
             sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
@@ -206,16 +180,16 @@ const JobPage = () => {
 
     return (
         <div>
-            <DataTable<IJob>
+            <DataTable<ISkill>
                 actionRef={tableRef}
-                headerTitle="Danh sách Jobs"
+                headerTitle="Danh sách Skill"
                 rowKey="id"
                 loading={isFetching}
                 columns={columns}
-                dataSource={jobs}
+                dataSource={skills}
                 request={async (params, sort, filter): Promise<any> => {
                     const query = buildQuery(params, sort, filter);
-                    dispatch(fetchJob({ query }))
+                    dispatch(fetchSkill({ query }))
                 }}
                 scroll={{ x: true }}
                 pagination={
@@ -233,15 +207,22 @@ const JobPage = () => {
                         <Button
                             icon={<PlusOutlined />}
                             type="primary"
-                            onClick={() => navigate('upsert')}
+                            onClick={() => setOpenModal(true)}
                         >
                             Thêm mới
                         </Button>
                     );
                 }}
             />
+            <ModalSkill
+                openModal={openModal}
+                setOpenModal={setOpenModal}
+                reloadTable={reloadTable}
+                dataInit={dataInit}
+                setDataInit={setDataInit}
+            />
         </div>
     )
 }
 
-export default JobPage;
+export default SkillPage;

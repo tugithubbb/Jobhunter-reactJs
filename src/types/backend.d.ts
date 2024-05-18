@@ -40,6 +40,16 @@ export interface ICompany {
     updatedAt?: string;
 }
 
+export interface ISkill {
+    id?: string;
+    name?: string;
+    createdBy?: string;
+    isDeleted?: boolean;
+    deletedAt?: boolean | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 
 
 export interface IUser {
