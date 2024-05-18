@@ -21,7 +21,7 @@ const CompanyCard = (props: IProps) => {
     const [pageSize, setPageSize] = useState(4);
     const [total, setTotal] = useState(0);
     const [filter, setFilter] = useState("");
-    const [sortQuery, setSortQuery] = useState("sort=-updatedAt");
+    const [sortQuery, setSortQuery] = useState("sort=updatedAt,desc");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,7 +30,7 @@ const CompanyCard = (props: IProps) => {
 
     const fetchCompany = async () => {
         setIsLoading(true)
-        let query = `current=${current}&pageSize=${pageSize}`;
+        let query = `page=${current}&size=${pageSize}`;
         if (filter) {
             query += `&${filter}`;
         }
@@ -60,7 +60,7 @@ const CompanyCard = (props: IProps) => {
     const handleViewDetailJob = (item: ICompany) => {
         if (item.name) {
             const slug = convertSlug(item.name);
-            navigate(`/company/${slug}?id=${item._id}`)
+            navigate(`/company/${slug}?id=${item.id}`)
         }
     }
 
@@ -80,7 +80,7 @@ const CompanyCard = (props: IProps) => {
 
                         {displayCompany?.map(item => {
                             return (
-                                <Col span={24} md={6} key={item._id}>
+                                <Col span={24} md={6} key={item.id}>
                                     <Card
                                         onClick={() => handleViewDetailJob(item)}
                                         style={{ height: 350 }}
@@ -88,8 +88,9 @@ const CompanyCard = (props: IProps) => {
                                         cover={
                                             <div className={styles["card-customize"]} >
                                                 <img
+                                                    style={{ maxWidth: "200px" }}
                                                     alt="example"
-                                                    src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${item?.logo}`}
+                                                    src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.logo}`}
                                                 />
                                             </div>
                                         }

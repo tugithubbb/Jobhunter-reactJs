@@ -23,9 +23,9 @@ const ResumePage = () => {
     const [dataInit, setDataInit] = useState<IResume | null>(null);
     const [openViewDetail, setOpenViewDetail] = useState<boolean>(false);
 
-    const handleDeleteResume = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteResume(_id);
+    const handleDeleteResume = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteResume(id);
             if (res && res.data) {
                 message.success('Xóa Resume thành công');
                 reloadTable();
@@ -45,7 +45,7 @@ const ResumePage = () => {
     const columns: ProColumns<IResume>[] = [
         {
             title: 'Id',
-            dataIndex: '_id',
+            dataIndex: 'id',
             width: 250,
             render: (text, record, index, action) => {
                 return (
@@ -53,7 +53,7 @@ const ResumePage = () => {
                         setOpenViewDetail(true);
                         setDataInit(record);
                     }}>
-                        {record._id}
+                        {record.id}
                     </a>
                 )
             },
@@ -128,7 +128,7 @@ const ResumePage = () => {
         //                 }}
         //                 type=""
         //                 onClick={() => {
-        //                     navigate(`/admin/job/upsert?id=${entity._id}`)
+        //                     navigate(`/admin/job/upsert?id=${entity.id}`)
         //                 }}
         //             />
 
@@ -136,7 +136,7 @@ const ResumePage = () => {
         //                 placement="leftTop"
         //                 title={"Xác nhận xóa resume"}
         //                 description={"Bạn có chắc chắn muốn xóa resume này ?"}
-        //                 onConfirm={() => handleDeleteResume(entity._id)}
+        //                 onConfirm={() => handleDeleteResume(entity.id)}
         //                 okText="Xác nhận"
         //                 cancelText="Hủy"
         //             >
@@ -184,7 +184,7 @@ const ResumePage = () => {
             temp = `${temp}&${sortBy}`;
         }
 
-        temp += "&populate=companyId,jobId&fields=companyId._id, companyId.name, companyId.logo, jobId._id, jobId.name";
+        temp += "&populate=companyId,jobId&fields=companyId.id, companyId.name, companyId.logo, jobId.id, jobId.name";
         return temp;
     }
 
@@ -193,7 +193,7 @@ const ResumePage = () => {
             <DataTable<IResume>
                 actionRef={tableRef}
                 headerTitle="Danh sách Resumes"
-                rowKey="_id"
+                rowKey="id"
                 loading={isFetching}
                 columns={columns}
                 dataSource={resumes}

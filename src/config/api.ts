@@ -54,7 +54,7 @@ export const callCreateCompany = (name: string, address: string, description: st
 }
 
 export const callUpdateCompany = (id: string, name: string, address: string, description: string, logo: string) => {
-    return axios.patch<IBackendRes<ICompany>>(`/api/v1/companies/${id}`, { name, address, description, logo })
+    return axios.put<IBackendRes<ICompany>>(`/api/v1/companies`, { id, name, address, description, logo })
 }
 
 export const callDeleteCompany = (id: string) => {
@@ -79,7 +79,7 @@ export const callCreateUser = (user: IUser) => {
 }
 
 export const callUpdateUser = (user: IUser) => {
-    return axios.patch<IBackendRes<IUser>>(`/api/v1/users`, { ...user })
+    return axios.put<IBackendRes<IUser>>(`/api/v1/users`, { ...user })
 }
 
 export const callDeleteUser = (id: string) => {
@@ -99,7 +99,7 @@ export const callCreateJob = (job: IJob) => {
 }
 
 export const callUpdateJob = (job: IJob, id: string) => {
-    return axios.patch<IBackendRes<IJob>>(`/api/v1/jobs/${id}`, { ...job })
+    return axios.put<IBackendRes<IJob>>(`/api/v1/jobs}`, { id, ...job })
 }
 
 export const callDeleteJob = (id: string) => {
@@ -123,7 +123,7 @@ export const callCreateResume = (url: string, companyId: any, jobId: any) => {
 }
 
 export const callUpdateResumeStatus = (id: any, status: string) => {
-    return axios.patch<IBackendRes<IResume>>(`/api/v1/resumes/${id}`, { status })
+    return axios.put<IBackendRes<IResume>>(`/api/v1/resumes`, { id, status })
 }
 
 export const callDeleteResume = (id: string) => {

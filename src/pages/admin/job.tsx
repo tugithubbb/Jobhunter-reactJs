@@ -20,9 +20,9 @@ const JobPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const handleDeleteJob = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteJob(_id);
+    const handleDeleteJob = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteJob(id);
             if (res && res.data) {
                 message.success('Xóa Job thành công');
                 reloadTable();
@@ -137,7 +137,7 @@ const JobPage = () => {
                         }}
                         type=""
                         onClick={() => {
-                            navigate(`/admin/job/upsert?id=${entity._id}`)
+                            navigate(`/admin/job/upsert?id=${entity.id}`)
                         }}
                     />
 
@@ -145,7 +145,7 @@ const JobPage = () => {
                         placement="leftTop"
                         title={"Xác nhận xóa job"}
                         description={"Bạn có chắc chắn muốn xóa job này ?"}
-                        onConfirm={() => handleDeleteJob(entity._id)}
+                        onConfirm={() => handleDeleteJob(entity.id)}
                         okText="Xác nhận"
                         cancelText="Hủy"
                     >
@@ -203,7 +203,7 @@ const JobPage = () => {
             <DataTable<IJob>
                 actionRef={tableRef}
                 headerTitle="Danh sách Jobs"
-                rowKey="_id"
+                rowKey="id"
                 loading={isFetching}
                 columns={columns}
                 dataSource={jobs}

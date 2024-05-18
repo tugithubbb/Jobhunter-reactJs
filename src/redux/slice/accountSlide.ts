@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from '@/config/axios-customize';
 import { callFetchAccount } from '@/config/api';
 
 // First, create the thunk
@@ -20,7 +19,7 @@ const initialState = {
         email: "",
         name: "",
         phone: "",
-        _id: "",
+        id: "",
         role: "ADMIN",
     },
     activeMenu: 'home'
@@ -50,7 +49,7 @@ export const accountSlide = createSlice({
             state.user = {
                 email: "",
                 phone: "",
-                _id: "",
+                id: "",
                 role: "",
                 name: ""
             }

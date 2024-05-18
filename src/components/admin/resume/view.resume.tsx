@@ -21,7 +21,7 @@ const ViewDetailResume = (props: IProps) => {
         setIsSubmit(true);
 
         const status = form.getFieldValue('status');
-        const res = await callUpdateResumeStatus(dataInit?._id, status)
+        const res = await callUpdateResumeStatus(dataInit?.id, status)
         if (res.data) {
             message.success("Update Resume status thành công!");
             setDataInit(null);

@@ -36,8 +36,8 @@ const ViewUpsertJob = (props: any) => {
                     setCompanies([
                         {
                             label: res.data.company?.name as string,
-                            value: `${res.data.company?._id}@#$${res.data.company?.logo}` as string,
-                            key: res.data.company?._id
+                            value: `${res.data.company?.id}@#$${res.data.company?.logo}` as string,
+                            key: res.data.company?.id
                         }
                     ])
 
@@ -45,8 +45,8 @@ const ViewUpsertJob = (props: any) => {
                         ...res.data,
                         company: {
                             label: res.data.company?.name as string,
-                            value: `${res.data.company?._id}@#$${res.data.company?.logo}` as string,
-                            key: res.data.company?._id
+                            value: `${res.data.company?.id}@#$${res.data.company?.logo}` as string,
+                            key: res.data.company?.id
                         },
 
                     })
@@ -65,7 +65,7 @@ const ViewUpsertJob = (props: any) => {
             const temp = list.map(item => {
                 return {
                     label: item.name as string,
-                    value: `${item._id}@#$${item.logo}` as string
+                    value: `${item.id}@#$${item.logo}` as string
                 }
             })
             return temp;
@@ -73,14 +73,14 @@ const ViewUpsertJob = (props: any) => {
     }
 
     const onFinish = async (values: any) => {
-        if (dataUpdate?._id) {
+        if (dataUpdate?.id) {
             //update
             const cp = values?.company?.value?.split('@#$');
             const job = {
                 name: values.name,
                 skills: values.skills,
                 company: {
-                    _id: cp && cp.length > 0 ? cp[0] : "",
+                    id: cp && cp.length > 0 ? cp[0] : "",
                     name: values.company.label,
                     logo: cp && cp.length > 1 ? cp[1] : ""
                 },
@@ -94,7 +94,7 @@ const ViewUpsertJob = (props: any) => {
                 isActive: values.isActive
             }
 
-            const res = await callUpdateJob(job, dataUpdate._id);
+            const res = await callUpdateJob(job, dataUpdate.id);
             if (res.data) {
                 message.success("Cập nhật job thành công");
                 navigate('/admin/job')
@@ -111,7 +111,7 @@ const ViewUpsertJob = (props: any) => {
                 name: values.name,
                 skills: values.skills,
                 company: {
-                    _id: cp && cp.length > 0 ? cp[0] : "",
+                    id: cp && cp.length > 0 ? cp[0] : "",
                     name: values.company.label,
                     logo: cp && cp.length > 1 ? cp[1] : ""
                 },
@@ -165,7 +165,7 @@ const ViewUpsertJob = (props: any) => {
                             {
                                 searchConfig: {
                                     resetText: "Hủy",
-                                    submitText: <>{dataUpdate?._id ? "Cập nhật Job" : "Tạo mới Job"}</>
+                                    submitText: <>{dataUpdate?.id ? "Cập nhật Job" : "Tạo mới Job"}</>
                                 },
                                 onReset: () => navigate('/admin/job'),
                                 render: (_: any, dom: any) => <FooterToolbar>{dom}</FooterToolbar>,
@@ -247,7 +247,7 @@ const ViewUpsertJob = (props: any) => {
                                 />
                             </Col>
 
-                            {(dataUpdate?._id || !id) &&
+                            {(dataUpdate?.id || !id) &&
                                 <Col span={24} md={6}>
                                     <ProForm.Item
                                         name="company"

@@ -18,7 +18,7 @@ export interface IModelPaginate<T> {
 export interface IAccount {
     access_token: string;
     user: {
-        _id: string;
+        id: string;
         role: string;
         email: string;
         name: string
@@ -28,7 +28,7 @@ export interface IAccount {
 export interface IGetAccount extends Omit<IAccount, "access_token"> { }
 
 export interface ICompany {
-    _id?: string;
+    id?: string;
     name?: string;
     address?: string;
     logo: string;
@@ -43,7 +43,7 @@ export interface ICompany {
 
 
 export interface IUser {
-    _id?: string;
+    id?: string;
     name: string;
     email: string;
     password?: string;
@@ -52,7 +52,7 @@ export interface IUser {
     address: string;
     role?: string;
     company?: {
-        _id: string;
+        id: string;
         name: string;
     }
     createdBy?: string;
@@ -63,11 +63,11 @@ export interface IUser {
 }
 
 export interface IJob {
-    _id?: string;
+    id?: string;
     name: string;
     skills: string[];
     company?: {
-        _id: string;
+        id: string;
         name: string;
         logo?: string;
     }
@@ -88,24 +88,24 @@ export interface IJob {
 }
 
 export interface IResume {
-    _id?: string;
+    id?: string;
     email: string;
     userId: string;
     url: string;
     status: string;
     companyId: string | {
-        _id: string;
+        id: string;
         name: string;
         logo: string;
     };
     jobId: string | {
-        _id: string;
+        id: string;
         name: string;
     };
     history?: {
         status: string;
         updatedAt: Date;
-        updatedBy: { _id: string; email: string }
+        updatedBy: { id: string; email: string }
     }[]
     createdBy?: string;
     isDeleted?: boolean;
