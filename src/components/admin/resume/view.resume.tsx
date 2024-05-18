@@ -86,11 +86,11 @@ const ViewDetailResume = (props: IProps) => {
 
                     </Descriptions.Item>
                     <Descriptions.Item label="Tên Job">
-                        {dataInit?.jobId?.name}
+                        {dataInit?.job?.name}
 
                     </Descriptions.Item>
                     <Descriptions.Item label="Tên Công Ty">
-                        {dataInit?.companyId?.name}
+                        {dataInit?.companyName}
                     </Descriptions.Item>
                     <Descriptions.Item label="Ngày tạo">{dataInit && dataInit.createdAt ? dayjs(dataInit.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</Descriptions.Item>
                     <Descriptions.Item label="Ngày sửa">{dataInit && dataInit.updatedAt ? dayjs(dataInit.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</Descriptions.Item>

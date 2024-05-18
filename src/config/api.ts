@@ -121,7 +121,7 @@ export const callCreateJob = (job: IJob) => {
 }
 
 export const callUpdateJob = (job: IJob, id: string) => {
-    return axios.put<IBackendRes<IJob>>(`/api/v1/jobs}`, { id, ...job })
+    return axios.put<IBackendRes<IJob>>(`/api/v1/jobs`, { id, ...job })
 }
 
 export const callDeleteJob = (id: string) => {
@@ -140,8 +140,17 @@ export const callFetchJobById = (id: string) => {
  * 
 Module Resume
  */
-export const callCreateResume = (url: string, companyId: any, jobId: any) => {
-    return axios.post<IBackendRes<IResume>>('/api/v1/resumes', { url, companyId, jobId })
+export const callCreateResume = (url: string, jobId: any, email: string, userId: string | number) => {
+    return axios.post<IBackendRes<IResume>>('/api/v1/resumes', {
+        email, url,
+        status: "PENDING",
+        user: {
+            "id": userId
+        },
+        job: {
+            "id": jobId
+        }
+    })
 }
 
 export const callUpdateResumeStatus = (id: any, status: string) => {

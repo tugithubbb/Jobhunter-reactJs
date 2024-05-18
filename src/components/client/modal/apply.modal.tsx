@@ -36,7 +36,7 @@ const ApplyModal = (props: IProps) => {
         else {
             //todo
             if (jobDetail) {
-                const res = await callCreateResume(urlCV, jobDetail?.company?.id, jobDetail?.id);
+                const res = await callCreateResume(urlCV, jobDetail?.id, user.email, user.id);
                 if (res.data) {
                     message.success("Rải CV thành công!");
                     setIsModalOpen(false);

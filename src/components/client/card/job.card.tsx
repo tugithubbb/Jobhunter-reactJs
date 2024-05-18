@@ -9,7 +9,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from 'styles/client.module.scss';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
+
 
 interface IProps {
     showPagination?: boolean;
@@ -82,6 +83,7 @@ const JobCard = (props: IProps) => {
                         </Col>
 
                         {displayJob?.map(item => {
+                            console.log(">>> check job: ", item, dayjs(item.updatedAt).fromNow())
                             return (
                                 <Col span={24} md={12} key={item.id}>
                                     <Card size="small" title={null} hoverable
@@ -98,7 +100,7 @@ const JobCard = (props: IProps) => {
                                                 <div className={styles["job-title"]}>{item.name}</div>
                                                 <div className={styles["job-location"]}><EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{getLocationName(item.location)}</div>
                                                 <div><ThunderboltOutlined style={{ color: 'orange' }} />&nbsp;{(item.salary + "")?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} đ</div>
-                                                <div className={styles["job-updatedAt"]}>{dayjs(item.updatedAt).fromNow()}</div>
+                                                <div className={styles["job-updatedAt"]}>{dayjs(item.updatedAt).locale('en').fromNow()}</div>
                                             </div>
                                         </div>
 

@@ -1,16 +1,16 @@
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IResume } from "@/types/backend";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Popconfirm, Select, Space, Tag, message, notification } from "antd";
+import { Space, message, notification } from "antd";
 import { useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { callDeleteResume } from "@/config/api";
 import queryString from 'query-string';
-import { useNavigate } from "react-router-dom";
 import { fetchResume } from "@/redux/slice/resumeSlide";
 import ViewDetailResume from "@/components/admin/resume/view.resume";
+import { sfIn } from "spring-filter-query-builder";
+import { EditOutlined } from "@ant-design/icons";
 
 const ResumePage = () => {
     const tableRef = useRef<ActionType>();
@@ -46,7 +46,7 @@ const ResumePage = () => {
         {
             title: 'Id',
             dataIndex: 'id',
-            width: 250,
+            width: 50,
             render: (text, record, index, action) => {
                 return (
                     <a href="#" onClick={() => {
@@ -81,12 +81,12 @@ const ResumePage = () => {
 
         {
             title: 'Job',
-            dataIndex: ["jobId", "name"],
+            dataIndex: ["job", "name"],
             hideInSearch: true,
         },
         {
             title: 'Company',
-            dataIndex: ["companyId", "name"],
+            dataIndex: "companyName",
             hideInSearch: true,
         },
 
@@ -97,7 +97,7 @@ const ResumePage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -109,82 +109,89 @@ const ResumePage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
         },
-        // {
+        {
 
-        //     title: 'Actions',
-        //     hideInSearch: true,
-        //     width: 50,
-        //     render: (_value, entity, _index, _action) => (
-        //         <Space>
-        //             <EditOutlined
-        //                 style={{
-        //                     fontSize: 20,
-        //                     color: '#ffa500',
-        //                 }}
-        //                 type=""
-        //                 onClick={() => {
-        //                     navigate(`/admin/job/upsert?id=${entity.id}`)
-        //                 }}
-        //             />
+            title: 'Actions',
+            hideInSearch: true,
+            width: 100,
+            render: (_value, entity, _index, _action) => (
+                <Space>
+                    <EditOutlined
+                        style={{
+                            fontSize: 20,
+                            color: '#ffa500',
+                        }}
+                        type=""
+                        onClick={() => {
+                            setOpenViewDetail(true);
+                            setDataInit(entity);
+                        }}
+                    />
 
-        //             <Popconfirm
-        //                 placement="leftTop"
-        //                 title={"Xác nhận xóa resume"}
-        //                 description={"Bạn có chắc chắn muốn xóa resume này ?"}
-        //                 onConfirm={() => handleDeleteResume(entity.id)}
-        //                 okText="Xác nhận"
-        //                 cancelText="Hủy"
-        //             >
-        //                 <span style={{ cursor: "pointer", margin: "0 10px" }}>
-        //                     <DeleteOutlined
-        //                         style={{
-        //                             fontSize: 20,
-        //                             color: '#ff4d4f',
-        //                         }}
-        //                     />
-        //                 </span>
-        //             </Popconfirm>
-        //         </Space>
-        //     ),
+                    {/* <Popconfirm
+                        placement="leftTop"
+                        title={"Xác nhận xóa resume"}
+                        description={"Bạn có chắc chắn muốn xóa resume này ?"}
+                        onConfirm={() => handleDeleteResume(entity.id)}
+                        okText="Xác nhận"
+                        cancelText="Hủy"
+                    >
+                        <span style={{ cursor: "pointer", margin: "0 10px" }}>
+                            <DeleteOutlined
+                                style={{
+                                    fontSize: 20,
+                                    color: '#ff4d4f',
+                                }}
+                            />
+                        </span>
+                    </Popconfirm> */}
+                </Space>
+            ),
 
-        // },
+        },
     ];
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        // if (clone.name) clone.name = `/${clone.name}/i`;
-        // if (clone.salary) clone.salary = `/${clone.salary}/i`;
+
         if (clone?.status?.length) {
-            clone.status = clone.status.join(",");
+            clone.filter = sfIn("status", clone.status).toString();
+            delete clone.status;
         }
+
+        clone.page = clone.current;
+        clone.size = clone.pageSize;
+
+        delete clone.current;
+        delete clone.pageSize;
 
         let temp = queryString.stringify(clone);
 
         let sortBy = "";
         if (sort && sort.status) {
-            sortBy = sort.status === 'ascend' ? "sort=status" : "sort=-status";
+            sortBy = sort.status === 'ascend' ? "sort=status,asc" : "sort=status,desc";
         }
 
         if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
         if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
 
-        temp += "&populate=companyId,jobId&fields=companyId.id, companyId.name, companyId.logo, jobId.id, jobId.name";
+        // temp += "&populate=companyId,jobId&fields=companyId.id, companyId.name, companyId.logo, jobId.id, jobId.name";
         return temp;
     }
 

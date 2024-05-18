@@ -3,13 +3,14 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IJob } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Popconfirm, Select, Space, Tag, message, notification } from "antd";
-import { useState, useRef } from 'react';
+import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
+import { useRef } from 'react';
 import dayjs from 'dayjs';
 import { callDeleteJob } from "@/config/api";
 import queryString from 'query-string';
 import { useNavigate } from "react-router-dom";
 import { fetchJob } from "@/redux/slice/jobSlide";
+import { sfIn } from "spring-filter-query-builder";
 
 const JobPage = () => {
     const tableRef = useRef<ActionType>();
@@ -57,6 +58,12 @@ const JobPage = () => {
             title: 'Tên Job',
             dataIndex: 'name',
             sorter: true,
+        },
+        {
+            title: 'Công ty',
+            dataIndex: ["company", "name"],
+            sorter: true,
+            hideInSearch: true,
         },
         {
             title: 'Mức lương',
@@ -165,33 +172,37 @@ const JobPage = () => {
     ];
 
     const buildQuery = (params: any, sort: any, filter: any) => {
+
         const clone = { ...params };
-        if (clone.name) clone.name = `name ~ '${clone.name}'`;
-        if (clone.salary) clone.salary = `salary ~ '${clone.salary}'`;
+        let parts = [];
+        if (clone.name) parts.push(`name ~ '${clone.name}'`);
+        if (clone.salary) parts.push(`salary ~ '${clone.salary}'`);
         if (clone?.level?.length) {
-            clone.level = clone.level.join(",");
+            parts.push(`${sfIn("level", clone.level).toString()}`);
         }
+
+        clone.filter = parts.join(' and ');
 
         clone.page = clone.current;
         clone.size = clone.pageSize;
 
         delete clone.current;
         delete clone.pageSize;
+        delete clone.name;
+        delete clone.salary;
+        delete clone.level;
 
         let temp = queryString.stringify(clone);
 
         let sortBy = "";
-        if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
-        }
-        if (sort && sort.salary) {
-            sortBy = sort.salary === 'ascend' ? "sort=salary,asc" : "sort=salary,desc";
-        }
-        if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
-        }
-        if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
+        const fields = ["name", "salary", "createdAt", "updatedAt"];
+        if (sort) {
+            for (const field of fields) {
+                if (sort[field]) {
+                    sortBy = `sort=${field},${sort[field] === 'ascend' ? 'asc' : 'desc'}`;
+                    break;  // Remove this if you want to handle multiple sort parameters
+                }
+            }
         }
 
         //mặc định sort theo updatedAt
