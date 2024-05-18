@@ -48,7 +48,7 @@ const JobPage = () => {
             render: (text, record, index) => {
                 return (
                     <>
-                        {(index + 1) + (meta.current - 1) * (meta.pageSize)}
+                        {(index + 1) + (meta.page - 1) * (meta.pageSize)}
                     </>)
             },
             hideInSearch: true,
@@ -166,31 +166,37 @@ const JobPage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
-        if (clone.salary) clone.salary = `/${clone.salary}/i`;
+        if (clone.name) clone.name = `name ~ '${clone.name}'`;
+        if (clone.salary) clone.salary = `salary ~ '${clone.salary}'`;
         if (clone?.level?.length) {
             clone.level = clone.level.join(",");
         }
+
+        clone.page = clone.current;
+        clone.size = clone.pageSize;
+
+        delete clone.current;
+        delete clone.pageSize;
 
         let temp = queryString.stringify(clone);
 
         let sortBy = "";
         if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
         }
         if (sort && sort.salary) {
-            sortBy = sort.salary === 'ascend' ? "sort=salary" : "sort=-salary";
+            sortBy = sort.salary === 'ascend' ? "sort=salary,asc" : "sort=salary,desc";
         }
         if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
         if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
@@ -214,7 +220,7 @@ const JobPage = () => {
                 scroll={{ x: true }}
                 pagination={
                     {
-                        current: meta.current,
+                        current: meta.page,
                         pageSize: meta.pageSize,
                         showSizeChanger: true,
                         total: meta.total,

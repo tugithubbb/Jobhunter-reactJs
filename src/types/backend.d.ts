@@ -7,7 +7,7 @@ export interface IBackendRes<T> {
 
 export interface IModelPaginate<T> {
     meta: {
-        current: number;
+        page: number;
         pageSize: number;
         pages: number;
         total: number;

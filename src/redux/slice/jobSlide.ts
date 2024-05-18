@@ -5,7 +5,7 @@ import { IJob } from '@/types/backend';
 interface IState {
     isFetching: boolean;
     meta: {
-        current: number;
+        page: number;
         pageSize: number;
         pages: number;
         total: number;
@@ -25,7 +25,7 @@ export const fetchJob = createAsyncThunk(
 const initialState: IState = {
     isFetching: true,
     meta: {
-        current: 1,
+        page: 1,
         pageSize: 10,
         pages: 0,
         total: 0
