@@ -8,8 +8,6 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     AliwangwangOutlined,
-    LogoutOutlined,
-    HeartTwoTone,
     BugOutlined,
     ScheduleOutlined,
 } from '@ant-design/icons';
@@ -23,7 +21,7 @@ import type { MenuProps } from 'antd';
 import { setLogoutAction } from '@/redux/slice/accountSlide';
 import { ALL_PERMISSIONS } from '@/config/permissions';
 
-const { Content, Footer, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 const LayoutAdmin = () => {
     const location = useLocation();
@@ -32,7 +30,7 @@ const LayoutAdmin = () => {
     const [activeMenu, setActiveMenu] = useState('');
     const user = useAppSelector(state => state.account.user);
 
-    const permissions = useAppSelector(state => state.account.user.permissions);
+    const permissions = useAppSelector(state => state.account.user.role.permissions);
     const [menuItems, setMenuItems] = useState<MenuProps['items']>([]);
 
     const navigate = useNavigate();
@@ -40,6 +38,7 @@ const LayoutAdmin = () => {
 
     useEffect(() => {
         if (permissions?.length) {
+            const ACL_ENABLE = import.meta.env.VITE_ACL_ENABLE;
             const viewCompany = permissions.find(item =>
                 item.apiPath === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.apiPath
                 && item.method === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.method
@@ -76,34 +75,34 @@ const LayoutAdmin = () => {
                     key: '/admin',
                     icon: <AppstoreOutlined />
                 },
-                ...(viewCompany ? [{
+                ...(viewCompany || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/company'>Company</Link>,
                     key: '/admin/company',
                     icon: <BankOutlined />,
                 }] : []),
 
-                ...(viewUser ? [{
+                ...(viewUser || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/user'>User</Link>,
                     key: '/admin/user',
                     icon: <UserOutlined />
                 }] : []),
-                ...(viewJob ? [{
+                ...(viewJob || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/job'>Job</Link>,
                     key: '/admin/job',
                     icon: <ScheduleOutlined />
                 }] : []),
 
-                ...(viewResume ? [{
+                ...(viewResume || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/resume'>Resume</Link>,
                     key: '/admin/resume',
                     icon: <AliwangwangOutlined />
                 }] : []),
-                ...(viewPermission ? [{
+                ...(viewPermission || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/permission'>Permission</Link>,
                     key: '/admin/permission',
                     icon: <ApiOutlined />
                 }] : []),
-                ...(viewRole ? [{
+                ...(viewRole || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/role'>Role</Link>,
                     key: '/admin/role',
                     icon: <ExceptionOutlined />

@@ -21,7 +21,7 @@ const UserResume = (props: any) => {
             setIsFetching(true);
             const res = await callFetchResumeByUser();
             if (res && res.data) {
-                setListCV(res.data as IResume[])
+                setListCV(res.data.result as IResume[])
             }
             setIsFetching(false);
         }

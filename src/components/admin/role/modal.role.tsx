@@ -6,7 +6,8 @@ import { IPermission } from "@/types/backend";
 import { CheckSquareOutlined } from "@ant-design/icons";
 import ModuleApi from "./module.api";
 import { useState, useEffect } from 'react';
-import _ from 'lodash';
+import groupBy from 'lodash/groupBy';
+import map from 'lodash/map';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { resetSingleRole } from "@/redux/slice/roleSlide";
 
@@ -30,14 +31,12 @@ const ModalRole = (props: IProps) => {
         permissions: IPermission[]
     }[] | null>(null);
 
-    const groupByPermission = (data: any) => {
-        return _(data)
-            .groupBy(x => x.module)
-            .map((value, key) => {
-                return { module: key, permissions: value as IPermission[] };
-            })
-            .value();
-    }
+    const groupByPermission = (data: any[]): { module: string; permissions: IPermission[] }[] => {
+        const groupedData = groupBy(data, x => x.module);
+        return map(groupedData, (value, key) => {
+            return { module: key, permissions: value as IPermission[] };
+        });
+    };
 
     useEffect(() => {
         const init = async () => {

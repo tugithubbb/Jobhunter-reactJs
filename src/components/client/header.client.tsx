@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CodeOutlined, ContactsOutlined, DashOutlined, LogoutOutlined, MenuFoldOutlined, RiseOutlined, TwitterOutlined } from '@ant-design/icons';
+import { CodeOutlined, ContactsOutlined, FireOutlined, LogoutOutlined, MenuFoldOutlined, RiseOutlined, TwitterOutlined } from '@ant-design/icons';
 import { Avatar, Drawer, Dropdown, MenuProps, Space, message } from 'antd';
 import { Menu, ConfigProvider } from 'antd';
 import styles from '@/styles/client.module.scss';
@@ -55,7 +55,7 @@ const Header = (props: any) => {
 
     const handleLogout = async () => {
         const res = await callLogout();
-        if (res && res.data) {
+        if (res && res && +res.statusCode === 200) {
             dispatch(setLogoutAction({}));
             message.success('Đăng xuất thành công');
             navigate('/')
@@ -76,7 +76,7 @@ const Header = (props: any) => {
                 to={"/admin"}
             >Trang Quản Trị</Link>,
             key: 'admin',
-            icon: <DashOutlined />
+            icon: <FireOutlined />
         },
         {
             label: <label

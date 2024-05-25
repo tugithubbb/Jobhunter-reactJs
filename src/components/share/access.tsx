@@ -27,7 +27,7 @@ const Access = (props: IProps) => {
     const { permission, hideChildren = false } = props;
     const [allow, setAllow] = useState<boolean>(true);
 
-    const permissions = useAppSelector(state => state.account.user.permissions);
+    const permissions = useAppSelector(state => state.account.user.role.permissions);
 
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const Access = (props: IProps) => {
 
     return (
         <>
-            {allow === true ?
+            {allow === true || import.meta.env.VITE_ACL_ENABLE === 'false' ?
                 <>{props.children}</>
                 :
                 <>
