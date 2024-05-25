@@ -24,12 +24,12 @@ import RolePage from './pages/admin/role';
 import UserPage from './pages/admin/user';
 import { fetchAccount } from './redux/slice/accountSlide';
 import LayoutApp from './components/share/layout.app';
-import JobPage from './pages/admin/job';
 import ViewUpsertJob from './components/admin/job/upsert.job';
 import ClientJobPage from './pages/job';
 import ClientJobDetailPage from './pages/job/detail';
 import ClientCompanyPage from './pages/company';
 import ClientCompanyDetailPage from './pages/company/detail';
+import JobTabs from './pages/admin/job/job.tabs';
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -113,7 +113,7 @@ export default function App() {
           children: [
             {
               index: true,
-              element: <ProtectedRoute> <JobPage /></ProtectedRoute>
+              element: <ProtectedRoute><JobTabs /></ProtectedRoute>
             },
             {
               path: "upsert", element:

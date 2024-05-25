@@ -28,20 +28,20 @@ const ModalUser = (props: IProps) => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        if (dataInit?._id) {
+        if (dataInit?.id) {
             if (dataInit.company) {
                 setCompanies([{
                     label: dataInit.company.name,
-                    value: dataInit.company._id,
-                    key: dataInit.company._id,
+                    value: dataInit.company.id,
+                    key: dataInit.company.id,
                 }])
             }
             if (dataInit.role) {
                 setRoles([
                     {
                         label: dataInit.role?.name,
-                        value: dataInit.role?._id,
-                        key: dataInit.role?._id,
+                        value: dataInit.role?.id,
+                        key: dataInit.role?.id,
                     }
                 ])
             }
@@ -50,10 +50,10 @@ const ModalUser = (props: IProps) => {
 
     const submitUser = async (valuesForm: any) => {
         const { name, email, password, address, age, gender, role, company } = valuesForm;
-        if (dataInit?._id) {
+        if (dataInit?.id) {
             //update
             const user = {
-                _id: dataInit._id,
+                id: dataInit.id,
                 name,
                 email,
                 password,
@@ -62,7 +62,7 @@ const ModalUser = (props: IProps) => {
                 address,
                 role: role.value,
                 company: {
-                    _id: company.value,
+                    id: company.value,
                     name: company.label
                 }
             }
@@ -89,7 +89,7 @@ const ModalUser = (props: IProps) => {
                 address,
                 role: role.value,
                 company: {
-                    _id: company.value,
+                    id: company.value,
                     name: company.label
                 }
             }
@@ -117,13 +117,13 @@ const ModalUser = (props: IProps) => {
 
     // Usage of DebounceSelect
     async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
-        const res = await callFetchCompany(`current=1&pageSize=100&name=/${name}/i`);
+        const res = await callFetchCompany(`page=1&size=100&name=/${name}/i`);
         if (res && res.data) {
             const list = res.data.result;
             const temp = list.map(item => {
                 return {
                     label: item.name as string,
-                    value: item._id as string
+                    value: item.id as string
                 }
             })
             return temp;
@@ -131,13 +131,13 @@ const ModalUser = (props: IProps) => {
     }
 
     async function fetchRoleList(name: string): Promise<ICompanySelect[]> {
-        const res = await callFetchRole(`current=1&pageSize=100&name=/${name}/i`);
+        const res = await callFetchRole(`page=1&size=100&name=/${name}/i`);
         if (res && res.data) {
             const list = res.data.result;
             const temp = list.map(item => {
                 return {
                     label: item.name as string,
-                    value: item._id as string
+                    value: item.id as string
                 }
             })
             return temp;
@@ -147,7 +147,7 @@ const ModalUser = (props: IProps) => {
     return (
         <>
             <ModalForm
-                title={<>{dataInit?._id ? "Cập nhật User" : "Tạo mới User"}</>}
+                title={<>{dataInit?.id ? "Cập nhật User" : "Tạo mới User"}</>}
                 open={openModal}
                 modalProps={{
                     onCancel: () => { handleReset() },
@@ -156,14 +156,14 @@ const ModalUser = (props: IProps) => {
                     width: isMobile ? "100%" : 900,
                     keyboard: false,
                     maskClosable: false,
-                    okText: <>{dataInit?._id ? "Cập nhật" : "Tạo mới"}</>,
+                    okText: <>{dataInit?.id ? "Cập nhật" : "Tạo mới"}</>,
                     cancelText: "Hủy"
                 }}
                 scrollToFirstError={true}
                 preserve={false}
                 form={form}
                 onFinish={submitUser}
-                initialValues={dataInit?._id ? dataInit : {}}
+                initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
                     <Col lg={12} md={12} sm={24} xs={24}>
@@ -179,10 +179,10 @@ const ModalUser = (props: IProps) => {
                     </Col>
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProFormText.Password
-                            disabled={dataInit?._id ? true : false}
+                            disabled={dataInit?.id ? true : false}
                             label="Password"
                             name="password"
-                            rules={[{ required: dataInit?._id ? false : true, message: 'Vui lòng không bỏ trống' }]}
+                            rules={[{ required: dataInit?.id ? false : true, message: 'Vui lòng không bỏ trống' }]}
                             placeholder="Nhập password"
                         />
                     </Col>
@@ -211,7 +211,7 @@ const ModalUser = (props: IProps) => {
                                 FEMALE: 'Nữ',
                                 OTHER: 'Khác',
                             }}
-                            placeholder="Please select a gender"
+                            placeholder="Chọn giới tính"
                             rules={[{ required: true, message: 'Vui lòng chọn giới tính!' }]}
                         />
                     </Col>
@@ -261,17 +261,17 @@ const ModalUser = (props: IProps) => {
                             />
                         </ProForm.Item>
 
-                    </Col>
-                    <Col lg={12} md={12} sm={24} xs={24}>
-                        <ProFormText
-                            label="Địa chỉ"
-                            name="address"
-                            rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
-                            placeholder="Nhập địa chỉ"
-                        />
+                        <Col lg={24} md={24} sm={24} xs={24}>
+                            <ProFormText
+                                label="Địa chỉ"
+                                name="address"
+                                rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
+                                placeholder="Nhập địa chỉ"
+                            />
+                        </Col>
                     </Col>
                 </Row>
-            </ModalForm>
+            </ModalForm >
         </>
     )
 }

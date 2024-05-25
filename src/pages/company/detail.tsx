@@ -36,7 +36,7 @@ const ClientCompanyDetailPage = (props: any) => {
                 <Skeleton />
                 :
                 <Row gutter={[20, 20]}>
-                    {companyDetail && companyDetail._id &&
+                    {companyDetail && companyDetail.id &&
                         <>
                             <Col span={24} md={16}>
                                 <div className={styles["header"]}>
@@ -55,8 +55,9 @@ const ClientCompanyDetailPage = (props: any) => {
                                 <div className={styles["company"]}>
                                     <div>
                                         <img
+                                            width={200}
                                             alt="example"
-                                            src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${companyDetail?.logo}`}
+                                            src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${companyDetail?.logo}`}
                                         />
                                     </div>
                                     <div>

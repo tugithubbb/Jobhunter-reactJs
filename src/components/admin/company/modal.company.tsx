@@ -45,7 +45,7 @@ const ModalCompany = (props: IProps) => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        if (dataInit?._id && dataInit?.description) {
+        if (dataInit?.id && dataInit?.description) {
             setValue(dataInit.description);
         }
     }, [dataInit])
@@ -58,9 +58,9 @@ const ModalCompany = (props: IProps) => {
             return;
         }
 
-        if (dataInit?._id) {
+        if (dataInit?.id) {
             //update
-            const res = await callUpdateCompany(dataInit._id, name, address, value, dataLogo[0].name);
+            const res = await callUpdateCompany(dataInit.id, name, address, value, dataLogo[0].name);
             if (res.data) {
                 message.success("Cập nhật company thành công");
                 handleReset();
@@ -171,7 +171,7 @@ const ModalCompany = (props: IProps) => {
             {openModal &&
                 <>
                     <ModalForm
-                        title={<>{dataInit?._id ? "Cập nhật Company" : "Tạo mới Company"}</>}
+                        title={<>{dataInit?.id ? "Cập nhật Company" : "Tạo mới Company"}</>}
                         open={openModal}
                         modalProps={{
                             onCancel: () => { handleReset() },
@@ -188,7 +188,7 @@ const ModalCompany = (props: IProps) => {
                         preserve={false}
                         form={form}
                         onFinish={submitCompany}
-                        initialValues={dataInit?._id ? dataInit : {}}
+                        initialValues={dataInit?.id ? dataInit : {}}
                         submitter={{
                             render: (_: any, dom: any) => <FooterToolbar>{dom}</FooterToolbar>,
                             submitButtonProps: {
@@ -196,7 +196,7 @@ const ModalCompany = (props: IProps) => {
                             },
                             searchConfig: {
                                 resetText: "Hủy",
-                                submitText: <>{dataInit?._id ? "Cập nhật" : "Tạo mới"}</>,
+                                submitText: <>{dataInit?.id ? "Cập nhật" : "Tạo mới"}</>,
                             }
                         }}
                     >
@@ -236,13 +236,13 @@ const ModalCompany = (props: IProps) => {
                                             onRemove={(file) => handleRemoveFile(file)}
                                             onPreview={handlePreview}
                                             defaultFileList={
-                                                dataInit?._id ?
+                                                dataInit?.id ?
                                                     [
                                                         {
                                                             uid: uuidv4(),
                                                             name: dataInit?.logo ?? "",
                                                             status: 'done',
-                                                            url: `${import.meta.env.VITE_BACKEND_URL}/images/company/${dataInit?.logo}`,
+                                                            url: `${import.meta.env.VITE_BACKEND_URL}/storage/company/${dataInit?.logo}`,
                                                         }
                                                     ] : []
                                             }

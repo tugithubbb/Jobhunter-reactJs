@@ -16,15 +16,15 @@ interface IState {
     isRefreshToken: boolean;
     errorRefreshToken: string;
     user: {
-        _id: string;
+        id: string;
         email: string;
         name: string;
         role: {
-            _id: string;
+            id: string;
             name: string;
         }
         permissions: {
-            _id: string;
+            id: string;
             name: string;
             apiPath: string;
             method: string;
@@ -40,11 +40,11 @@ const initialState: IState = {
     isRefreshToken: false,
     errorRefreshToken: "",
     user: {
-        _id: "",
+        id: "",
         email: "",
         name: "",
         role: {
-            _id: "",
+            id: "",
             name: "",
         },
         permissions: [],
@@ -66,7 +66,7 @@ export const accountSlide = createSlice({
         setUserLoginInfo: (state, action) => {
             state.isAuthenticated = true;
             state.isLoading = false;
-            state.user._id = action?.payload?._id;
+            state.user.id = action?.payload?.id;
             state.user.email = action.payload.email;
             state.user.name = action.payload.name;
             state.user.role = action?.payload?.role;
@@ -76,11 +76,11 @@ export const accountSlide = createSlice({
             localStorage.removeItem('access_token');
             state.isAuthenticated = false;
             state.user = {
-                _id: "",
+                id: "",
                 email: "",
                 name: "",
                 role: {
-                    _id: "",
+                    id: "",
                     name: "",
                 },
                 permissions: [],
@@ -105,7 +105,7 @@ export const accountSlide = createSlice({
             if (action.payload) {
                 state.isAuthenticated = true;
                 state.isLoading = false;
-                state.user._id = action?.payload?.user?._id;
+                state.user.id = action?.payload?.user?.id;
                 state.user.email = action.payload.user?.email;
                 state.user.name = action.payload.user?.name;
                 state.user.role = action?.payload?.user?.role;

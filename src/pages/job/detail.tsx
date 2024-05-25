@@ -43,7 +43,7 @@ const ClientJobDetailPage = (props: any) => {
                 <Skeleton />
                 :
                 <Row gutter={[20, 20]}>
-                    {jobDetail && jobDetail._id &&
+                    {jobDetail && jobDetail.id &&
                         <>
                             <Col span={24} md={16}>
                                 <div className={styles["header"]}>
@@ -60,7 +60,7 @@ const ClientJobDetailPage = (props: any) => {
                                     {jobDetail?.skills?.map((item, index) => {
                                         return (
                                             <Tag key={`${index}-key`} color="gold" >
-                                                {item}
+                                                {item.name}
                                             </Tag>
                                         )
                                     })}
@@ -73,7 +73,7 @@ const ClientJobDetailPage = (props: any) => {
                                     <EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{getLocationName(jobDetail.location)}
                                 </div>
                                 <div>
-                                    <HistoryOutlined /> {dayjs(jobDetail.updatedAt).fromNow()}
+                                    <HistoryOutlined /> {jobDetail.updatedAt ? dayjs(jobDetail.updatedAt).locale("en").fromNow() : ""}
                                 </div>
                                 <Divider />
                                 {parse(jobDetail.description)}
@@ -83,8 +83,9 @@ const ClientJobDetailPage = (props: any) => {
                                 <div className={styles["company"]}>
                                     <div>
                                         <img
+                                            width={"200px"}
                                             alt="example"
-                                            src={`${import.meta.env.VITE_BACKEND_URL}/images/company/${jobDetail.company?.logo}`}
+                                            src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${jobDetail.company?.logo}`}
                                         />
                                     </div>
                                     <div>

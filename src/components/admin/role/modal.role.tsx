@@ -50,7 +50,7 @@ const ModalRole = (props: IProps) => {
     }, [])
 
     useEffect(() => {
-        if (listPermissions?.length && singleRole?._id) {
+        if (listPermissions?.length && singleRole?.id) {
             form.setFieldsValue({
                 name: singleRole.name,
                 isActive: singleRole.isActive,
@@ -64,9 +64,9 @@ const ModalRole = (props: IProps) => {
                     const temp = userPermissions.find(z => z.module === x.module);
 
                     if (temp) {
-                        const isExist = temp.permissions.find(k => k._id === y._id);
+                        const isExist = temp.permissions.find(k => k.id === y.id);
                         if (isExist) {
-                            form.setFieldValue(["permissions", y._id as string], true);
+                            form.setFieldValue(["permissions", y.id as string], true);
                         } else allCheck = false;
                     } else {
                         allCheck = false;
@@ -89,12 +89,12 @@ const ModalRole = (props: IProps) => {
             }
         }
 
-        if (singleRole?._id) {
+        if (singleRole?.id) {
             //update
             const role = {
                 name, description, isActive, permissions: checkedPermissions
             }
-            const res = await callUpdateRole(role, singleRole._id);
+            const res = await callUpdateRole(role, singleRole.id);
             if (res.data) {
                 message.success("Cập nhật role thành công");
                 handleReset();
@@ -133,7 +133,7 @@ const ModalRole = (props: IProps) => {
     return (
         <>
             <ModalForm
-                title={<>{singleRole?._id ? "Cập nhật Role" : "Tạo mới Role"}</>}
+                title={<>{singleRole?.id ? "Cập nhật Role" : "Tạo mới Role"}</>}
                 open={openModal}
                 modalProps={{
                     onCancel: () => { handleReset() },
@@ -155,7 +155,7 @@ const ModalRole = (props: IProps) => {
                     },
                     searchConfig: {
                         resetText: "Hủy",
-                        submitText: <>{singleRole?._id ? "Cập nhật" : "Tạo mới"}</>,
+                        submitText: <>{singleRole?.id ? "Cập nhật" : "Tạo mới"}</>,
                     }
                 }}
             >

@@ -5,7 +5,7 @@ import { IRole } from '@/types/backend';
 interface IState {
     isFetching: boolean;
     meta: {
-        current: number;
+        page: number;
         pageSize: number;
         pages: number;
         total: number;
@@ -36,14 +36,14 @@ const initialState: IState = {
     isFetching: true,
     isFetchSingle: true,
     meta: {
-        current: 1,
+        page: 1,
         pageSize: 10,
         pages: 0,
         total: 0
     },
     result: [],
     singleRole: {
-        _id: "",
+        id: "",
         name: "",
         description: "",
         isActive: false,
@@ -60,7 +60,7 @@ export const roleSlide = createSlice({
 
         resetSingleRole: (state, action) => {
             state.singleRole = {
-                _id: "",
+                id: "",
                 name: "",
                 description: "",
                 isActive: false,
@@ -97,7 +97,7 @@ export const roleSlide = createSlice({
         builder.addCase(fetchRoleById.pending, (state, action) => {
             state.isFetchSingle = true;
             state.singleRole = {
-                _id: "",
+                id: "",
                 name: "",
                 description: "",
                 isActive: false,
@@ -110,7 +110,7 @@ export const roleSlide = createSlice({
         builder.addCase(fetchRoleById.rejected, (state, action) => {
             state.isFetchSingle = false;
             state.singleRole = {
-                _id: "",
+                id: "",
                 name: "",
                 description: "",
                 isActive: false,

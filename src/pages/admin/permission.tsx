@@ -27,9 +27,9 @@ const PermissionPage = () => {
     const permissions = useAppSelector(state => state.permission.result);
     const dispatch = useAppDispatch();
 
-    const handleDeletePermission = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeletePermission(_id);
+    const handleDeletePermission = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeletePermission(id);
             if (res && res.data) {
                 message.success('Xóa Permission thành công');
                 reloadTable();
@@ -49,7 +49,7 @@ const PermissionPage = () => {
     const columns: ProColumns<IPermission>[] = [
         {
             title: 'Id',
-            dataIndex: '_id',
+            dataIndex: 'id',
             width: 250,
             render: (text, record, index, action) => {
                 return (
@@ -57,7 +57,7 @@ const PermissionPage = () => {
                         setOpenViewDetail(true);
                         setDataInit(record);
                     }}>
-                        {record._id}
+                        {record.id}
                     </a>
                 )
             },
@@ -143,7 +143,7 @@ const PermissionPage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa permission"}
                             description={"Bạn có chắc chắn muốn xóa permission này ?"}
-                            onConfirm={() => handleDeletePermission(entity._id)}
+                            onConfirm={() => handleDeletePermission(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -211,7 +211,7 @@ const PermissionPage = () => {
                 <DataTable<IPermission>
                     actionRef={tableRef}
                     headerTitle="Danh sách Permissions (Quyền Hạn)"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={permissions}
@@ -222,7 +222,7 @@ const PermissionPage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,

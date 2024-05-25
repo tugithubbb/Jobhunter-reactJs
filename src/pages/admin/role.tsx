@@ -23,9 +23,9 @@ const RolePage = () => {
     const roles = useAppSelector(state => state.role.result);
     const dispatch = useAppDispatch();
 
-    const handleDeleteRole = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteRole(_id);
+    const handleDeleteRole = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteRole(id);
             if (res && res.data) {
                 message.success('Xóa Role thành công');
                 reloadTable();
@@ -45,12 +45,12 @@ const RolePage = () => {
     const columns: ProColumns<IRole>[] = [
         {
             title: 'Id',
-            dataIndex: '_id',
+            dataIndex: 'id',
             width: 250,
             render: (text, record, index, action) => {
                 return (
                     <span>
-                        {record._id}
+                        {record.id}
                     </span>
                 )
             },
@@ -115,7 +115,7 @@ const RolePage = () => {
                             }}
                             type=""
                             onClick={() => {
-                                dispatch(fetchRoleById((entity._id) as string))
+                                dispatch(fetchRoleById((entity.id) as string))
                                 setOpenModal(true);
                             }}
                         />
@@ -128,7 +128,7 @@ const RolePage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa role"}
                             description={"Bạn có chắc chắn muốn xóa role này ?"}
-                            onConfirm={() => handleDeleteRole(entity._id)}
+                            onConfirm={() => handleDeleteRole(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -183,7 +183,7 @@ const RolePage = () => {
                 <DataTable<IRole>
                     actionRef={tableRef}
                     headerTitle="Danh sách Roles (Vai Trò)"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={roles}
@@ -194,7 +194,7 @@ const RolePage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,
