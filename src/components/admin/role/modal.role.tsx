@@ -26,6 +26,7 @@ const ModalRole = (props: IProps) => {
 
     const [form] = Form.useForm();
 
+    //all backend permissions
     const [listPermissions, setListPermissions] = useState<{
         module: string;
         permissions: IPermission[]
@@ -55,6 +56,7 @@ const ModalRole = (props: IProps) => {
                 active: singleRole.active,
                 description: singleRole.description
             })
+            //current permissions of role
             const userPermissions = groupByPermission(singleRole.permissions);
 
             listPermissions.forEach(x => {
