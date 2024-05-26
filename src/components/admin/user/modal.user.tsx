@@ -60,7 +60,7 @@ const ModalUser = (props: IProps) => {
                 age,
                 gender,
                 address,
-                role: role.value,
+                role: { id: role.value, name: "" },
                 company: {
                     id: company.value,
                     name: company.label
@@ -87,7 +87,7 @@ const ModalUser = (props: IProps) => {
                 age,
                 gender,
                 address,
-                role: role.value,
+                role: { id: role.value, name: "" },
                 company: {
                     id: company.value,
                     name: company.label
