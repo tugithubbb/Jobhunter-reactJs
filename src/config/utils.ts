@@ -9,6 +9,7 @@ export const SKILLS_LIST =
         { label: "Nest.JS", value: "NEST.JS" },
         { label: "TypeScript", value: "TYPESCRIPT" },
         { label: "Java", value: "JAVA" },
+        { label: "Java Spring", value: "JAVA SPRING" },
         { label: "Frontend", value: "FRONTEND" },
         { label: "Backend", value: "BACKEND" },
         { label: "Fullstack", value: "FULLSTACK" }

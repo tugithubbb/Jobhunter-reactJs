@@ -131,7 +131,7 @@ const ViewUpsertJob = (props: any) => {
                 description: value,
                 startDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.startDate) ? dayjs(values.startDate, 'DD/MM/YYYY').toDate() : values.startDate,
                 endDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.endDate) ? dayjs(values.endDate, 'DD/MM/YYYY').toDate() : values.endDate,
-                isActive: values.isActive,
+                active: values.active,
 
             }
 
@@ -164,7 +164,7 @@ const ViewUpsertJob = (props: any) => {
                 description: value,
                 startDate: dayjs(values.startDate, 'DD/MM/YYYY').toDate(),
                 endDate: dayjs(values.endDate, 'DD/MM/YYYY').toDate(),
-                isActive: values.isActive
+                active: values.active
             }
 
             const res = await callCreateJob(job);
@@ -347,7 +347,7 @@ const ViewUpsertJob = (props: any) => {
                             <Col span={24} md={6}>
                                 <ProFormSwitch
                                     label="Trạng thái"
-                                    name="isActive"
+                                    name="active"
                                     checkedChildren="ACTIVE"
                                     unCheckedChildren="INACTIVE"
                                     initialValue={true}

@@ -102,7 +102,7 @@ export interface IJob {
     description: string;
     startDate: Date;
     endDate: Date;
-    isActive: boolean;
+    active: boolean;
 
     createdBy?: string;
     isDeleted?: boolean;
@@ -157,7 +157,7 @@ export interface IRole {
     id?: string;
     name: string;
     description: string;
-    isActive: boolean;
+    active: boolean;
     permissions: IPermission[] | string[];
 
     createdBy?: string;

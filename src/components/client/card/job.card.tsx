@@ -23,7 +23,7 @@ const JobCard = (props: IProps) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [current, setCurrent] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(6);
     const [total, setTotal] = useState(0);
     const [filter, setFilter] = useState("");
     const [sortQuery, setSortQuery] = useState("sort=updatedAt,desc");
@@ -100,7 +100,7 @@ const JobCard = (props: IProps) => {
                                                 <div className={styles["job-title"]}>{item.name}</div>
                                                 <div className={styles["job-location"]}><EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{getLocationName(item.location)}</div>
                                                 <div><ThunderboltOutlined style={{ color: 'orange' }} />&nbsp;{(item.salary + "")?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} đ</div>
-                                                <div className={styles["job-updatedAt"]}>{dayjs(item.updatedAt).locale('en').fromNow()}</div>
+                                                <div className={styles["job-updatedAt"]}>{item.updatedAt ? dayjs(item.updatedAt).locale('en').fromNow() : dayjs(item.createdAt).locale('en').fromNow()}</div>
                                             </div>
                                         </div>
 

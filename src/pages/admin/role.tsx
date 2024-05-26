@@ -12,6 +12,7 @@ import { fetchRole, fetchRoleById } from "@/redux/slice/roleSlide";
 import ModalRole from "@/components/admin/role/modal.role";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import Access from "@/components/share/access";
+import { sfLike } from "spring-filter-query-builder";
 
 const RolePage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -63,11 +64,11 @@ const RolePage = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActive',
+            dataIndex: 'active',
             render(dom, entity, index, action, schema) {
                 return <>
-                    <Tag color={entity.isActive ? "lime" : "red"} >
-                        {entity.isActive ? "ACTIVE" : "INACTIVE"}
+                    <Tag color={entity.active ? "lime" : "red"} >
+                        {entity.active ? "ACTIVE" : "INACTIVE"}
                     </Tag>
                 </>
             },
@@ -80,7 +81,7 @@ const RolePage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -92,7 +93,7 @@ const RolePage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -150,24 +151,32 @@ const RolePage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
+        const q: any = {
+            page: params.current,
+            size: params.pageSize,
+            filter: ""
+        }
 
-        let temp = queryString.stringify(clone);
+        if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
+
+        if (!q.filter) delete q.filter;
+
+        let temp = queryString.stringify(q);
 
         let sortBy = "";
         if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
         }
         if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
         if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }

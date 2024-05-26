@@ -260,15 +260,14 @@ const ModalUser = (props: IProps) => {
                                 style={{ width: '100%' }}
                             />
                         </ProForm.Item>
-
-                        <Col lg={24} md={24} sm={24} xs={24}>
-                            <ProFormText
-                                label="Địa chỉ"
-                                name="address"
-                                rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
-                                placeholder="Nhập địa chỉ"
-                            />
-                        </Col>
+                    </Col>
+                    <Col lg={12} md={12} sm={24} xs={24}>
+                        <ProFormText
+                            label="Địa chỉ"
+                            name="address"
+                            rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
+                            placeholder="Nhập địa chỉ"
+                        />
                     </Col>
                 </Row>
             </ModalForm >

@@ -182,7 +182,7 @@ export const callCreatePermission = (permission: IPermission) => {
 }
 
 export const callUpdatePermission = (permission: IPermission, id: string) => {
-    return axios.patch<IBackendRes<IPermission>>(`/api/v1/permissions/${id}`, { ...permission })
+    return axios.put<IBackendRes<IPermission>>(`/api/v1/permissions`, { id, ...permission })
 }
 
 export const callDeletePermission = (id: string) => {
@@ -206,7 +206,7 @@ export const callCreateRole = (role: IRole) => {
 }
 
 export const callUpdateRole = (role: IRole, id: string) => {
-    return axios.patch<IBackendRes<IRole>>(`/api/v1/roles/${id}`, { ...role })
+    return axios.put<IBackendRes<IRole>>(`/api/v1/roles`, { id, ...role })
 }
 
 export const callDeleteRole = (id: string) => {

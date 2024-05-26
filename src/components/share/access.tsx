@@ -31,7 +31,7 @@ const Access = (props: IProps) => {
 
 
     useEffect(() => {
-        if (permissions.length) {
+        if (permissions?.length) {
             const check = permissions.find(item =>
                 item.apiPath === permission.apiPath
                 && item.method === permission.method

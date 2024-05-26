@@ -186,8 +186,6 @@ const UserPage = () => {
             temp = `${temp}&${sortBy}`;
         }
 
-        temp += "&populate=role&fields=role.id, role.name";
-
         return temp;
     }
 

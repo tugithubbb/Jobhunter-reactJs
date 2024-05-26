@@ -20,9 +20,9 @@ interface IState {
         email: string;
         name: string;
         role: {
-            id: string;
-            name: string;
-            permissions: {
+            id?: string;
+            name?: string;
+            permissions?: {
                 id: string;
                 name: string;
                 apiPath: string;
@@ -70,7 +70,9 @@ export const accountSlide = createSlice({
             state.user.email = action.payload.email;
             state.user.name = action.payload.name;
             state.user.role = action?.payload?.role;
-            state.user.role.permissions = action?.payload?.role?.permissions;
+
+            if (!action?.payload?.user?.role) state.user.role = {};
+            state.user.role.permissions = action?.payload?.role?.permissions ?? [];
         },
         setLogoutAction: (state, action) => {
             localStorage.removeItem('access_token');
@@ -109,7 +111,8 @@ export const accountSlide = createSlice({
                 state.user.email = action.payload.user?.email;
                 state.user.name = action.payload.user?.name;
                 state.user.role = action?.payload?.user?.role;
-                state.user.role.permissions = action?.payload?.user?.role?.permissions;
+                if (!action?.payload?.user?.role) state.user.role = {};
+                state.user.role.permissions = action?.payload?.user?.role?.permissions ?? [];
             }
         })
 

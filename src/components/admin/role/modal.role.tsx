@@ -52,7 +52,7 @@ const ModalRole = (props: IProps) => {
         if (listPermissions?.length && singleRole?.id) {
             form.setFieldsValue({
                 name: singleRole.name,
-                isActive: singleRole.isActive,
+                active: singleRole.active,
                 description: singleRole.description
             })
             const userPermissions = groupByPermission(singleRole.permissions);
@@ -77,7 +77,7 @@ const ModalRole = (props: IProps) => {
     }, [listPermissions, singleRole])
 
     const submitRole = async (valuesForm: any) => {
-        const { description, isActive, name, permissions } = valuesForm;
+        const { description, active, name, permissions } = valuesForm;
         const checkedPermissions = [];
 
         if (permissions) {
@@ -91,7 +91,7 @@ const ModalRole = (props: IProps) => {
         if (singleRole?.id) {
             //update
             const role = {
-                name, description, isActive, permissions: checkedPermissions
+                name, description, active, permissions: checkedPermissions
             }
             const res = await callUpdateRole(role, singleRole.id);
             if (res.data) {
@@ -107,7 +107,7 @@ const ModalRole = (props: IProps) => {
         } else {
             //create
             const role = {
-                name, description, isActive, permissions: checkedPermissions
+                name, description, active, permissions: checkedPermissions
             }
             const res = await callCreateRole(role);
             if (res.data) {
@@ -172,7 +172,7 @@ const ModalRole = (props: IProps) => {
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProFormSwitch
                             label="Trạng thái"
-                            name="isActive"
+                            name="active"
                             checkedChildren="ACTIVE"
                             unCheckedChildren="INACTIVE"
                             initialValue={true}

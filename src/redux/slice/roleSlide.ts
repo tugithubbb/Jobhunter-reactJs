@@ -46,7 +46,7 @@ const initialState: IState = {
         id: "",
         name: "",
         description: "",
-        isActive: false,
+        active: false,
         permissions: []
     }
 };
@@ -63,7 +63,7 @@ export const roleSlide = createSlice({
                 id: "",
                 name: "",
                 description: "",
-                isActive: false,
+                active: false,
                 permissions: []
             }
         },
@@ -100,7 +100,7 @@ export const roleSlide = createSlice({
                 id: "",
                 name: "",
                 description: "",
-                isActive: false,
+                active: false,
                 permissions: []
             }
             // Add user to the state array
@@ -113,7 +113,7 @@ export const roleSlide = createSlice({
                 id: "",
                 name: "",
                 description: "",
-                isActive: false,
+                active: false,
                 permissions: []
             }
             // Add user to the state array

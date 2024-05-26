@@ -97,11 +97,11 @@ const JobPage = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActive',
+            dataIndex: 'active',
             render(dom, entity, index, action, schema) {
                 return <>
-                    <Tag color={entity.isActive ? "lime" : "red"} >
-                        {entity.isActive ? "ACTIVE" : "INACTIVE"}
+                    <Tag color={entity.active ? "lime" : "red"} >
+                        {entity.active ? "ACTIVE" : "INACTIVE"}
                     </Tag>
                 </>
             },
@@ -193,6 +193,7 @@ const JobPage = () => {
         }
 
         clone.filter = parts.join(' and ');
+        if (!clone.filter) delete clone.filter;
 
         clone.page = clone.current;
         clone.size = clone.pageSize;
