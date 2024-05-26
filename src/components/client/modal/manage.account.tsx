@@ -43,12 +43,12 @@ const UserResume = (props: any) => {
         },
         {
             title: 'Công Ty',
-            dataIndex: ["companyId", "name"],
+            dataIndex: "companyName",
 
         },
         {
-            title: 'Vị trí',
-            dataIndex: ["jobId", "name"],
+            title: 'Job title',
+            dataIndex: ["job", "name"],
 
         },
         {
@@ -70,7 +70,7 @@ const UserResume = (props: any) => {
             render(value, record, index) {
                 return (
                     <a
-                        href={`${import.meta.env.VITE_BACKEND_URL}/images/resume/${record?.url}`}
+                        href={`${import.meta.env.VITE_BACKEND_URL}/storage/resume/${record?.url}`}
                         target="_blank"
                     >Chi tiết</a>
                 )
