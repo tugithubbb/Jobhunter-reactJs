@@ -37,13 +37,14 @@ const ModuleApi = (props: IProps) => {
 
     //check all
     const temp = listPermissions?.find(item => item.module === parent);
-    if (temp) {
+    if (temp?.module) {
       const restPermission = temp?.permissions?.filter(item => item.id !== child);
       if (restPermission && restPermission.length) {
         const allTrue = restPermission.every(item => form.getFieldValue(["permissions", item.id as string]));
         form.setFieldValue(["permissions", parent], allTrue && value)
       }
     }
+
   }
 
 
