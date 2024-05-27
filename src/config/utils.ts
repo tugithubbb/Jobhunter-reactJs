@@ -21,7 +21,6 @@ export const LOCATION_LIST =
         { label: "Hồ Chí Minh", value: "HOCHIMINH" },
         { label: "Đà Nẵng", value: "DANANG" },
         { label: "Others", value: "OTHER" },
-        { label: "Tất cả thành phố", value: "ALL" },
     ];
 
 export const nonAccentVietnamese = (str: string) => {
