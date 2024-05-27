@@ -128,14 +128,14 @@ const ModalPermission = (props: IProps) => {
                             name="module"
                             label="Thuộc Module"
                             valueEnum={{
-                                AUTH: 'AUTH',
                                 COMPANIES: 'COMPANIES',
                                 FILES: 'FILES',
                                 JOBS: 'JOBS',
                                 PERMISSIONS: 'PERMISSIONS',
                                 RESUMES: 'RESUMES',
                                 ROLES: 'ROLES',
-                                USERS: 'USERS'
+                                USERS: 'USERS',
+                                SUBSCRIBERS: 'SUBSCRIBERS'
                             }}
                             placeholder="Please select a module"
                             rules={[{ required: true, message: 'Vui lòng chọn module!' }]}
