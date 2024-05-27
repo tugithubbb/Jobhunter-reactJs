@@ -72,6 +72,20 @@ const UserPage = () => {
         },
 
         {
+            title: 'Role',
+            dataIndex: ["role", "name"],
+            sorter: true,
+            hideInSearch: true
+        },
+
+        {
+            title: 'Company',
+            dataIndex: ["company", "name"],
+            sorter: true,
+            hideInSearch: true
+        },
+
+        {
             title: 'CreatedAt',
             dataIndex: 'createdAt',
             width: 200,

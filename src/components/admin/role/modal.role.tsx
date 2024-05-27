@@ -41,7 +41,7 @@ const ModalRole = (props: IProps) => {
 
     useEffect(() => {
         const init = async () => {
-            const res = await callFetchPermission(`current=1&pageSize=100`);
+            const res = await callFetchPermission(`page=1&size=100`);
             if (res.data?.result) {
                 setListPermissions(groupByPermission(res.data?.result))
             }
