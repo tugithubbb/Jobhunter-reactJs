@@ -2,7 +2,7 @@ import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchUser } from "@/redux/slice/userSlide";
 import { IUser } from "@/types/backend";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns } from '@ant-design/pro-components';
 import { Button, Popconfirm, Space, message, notification } from "antd";
 import { useState, useRef } from 'react';
@@ -13,6 +13,7 @@ import ModalUser from "@/components/admin/user/modal.user";
 import ViewDetailUser from "@/components/admin/user/view.user";
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
+import { sfLike } from "spring-filter-query-builder";
 
 const UserPage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -26,10 +27,10 @@ const UserPage = () => {
     const users = useAppSelector(state => state.user.result);
     const dispatch = useAppDispatch();
 
-    const handleDeleteUser = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteUser(_id);
-            if (res && res.data) {
+    const handleDeleteUser = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteUser(id);
+            if (+res.statusCode === 200) {
                 message.success('Xóa User thành công');
                 reloadTable();
             } else {
@@ -47,18 +48,15 @@ const UserPage = () => {
 
     const columns: ProColumns<IUser>[] = [
         {
-            title: 'Id',
-            dataIndex: '_id',
-            width: 250,
-            render: (text, record, index, action) => {
+            title: 'STT',
+            key: 'index',
+            width: 50,
+            align: "center",
+            render: (text, record, index) => {
                 return (
-                    <a href="#" onClick={() => {
-                        setOpenViewDetail(true);
-                        setDataInit(record);
-                    }}>
-                        {record._id}
-                    </a>
-                )
+                    <>
+                        {(index + 1) + (meta.page - 1) * (meta.pageSize)}
+                    </>)
             },
             hideInSearch: true,
         },
@@ -74,13 +72,27 @@ const UserPage = () => {
         },
 
         {
+            title: 'Role',
+            dataIndex: ["role", "name"],
+            sorter: true,
+            hideInSearch: true
+        },
+
+        {
+            title: 'Company',
+            dataIndex: ["company", "name"],
+            sorter: true,
+            hideInSearch: true
+        },
+
+        {
             title: 'CreatedAt',
             dataIndex: 'createdAt',
             width: 200,
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -92,7 +104,7 @@ const UserPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -104,7 +116,7 @@ const UserPage = () => {
             width: 50,
             render: (_value, entity, _index, _action) => (
                 <Space>
-                    <Access
+                    < Access
                         permission={ALL_PERMISSIONS.USERS.UPDATE}
                         hideChildren
                     >
@@ -119,7 +131,7 @@ const UserPage = () => {
                                 setDataInit(entity);
                             }}
                         />
-                    </Access>
+                    </Access >
 
                     <Access
                         permission={ALL_PERMISSIONS.USERS.DELETE}
@@ -129,7 +141,7 @@ const UserPage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa user"}
                             description={"Bạn có chắc chắn muốn xóa user này ?"}
-                            onConfirm={() => handleDeleteUser(entity._id)}
+                            onConfirm={() => handleDeleteUser(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -143,40 +155,50 @@ const UserPage = () => {
                             </span>
                         </Popconfirm>
                     </Access>
-                </Space>
+                </Space >
             ),
 
         },
     ];
 
     const buildQuery = (params: any, sort: any, filter: any) => {
-        const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
-        if (clone.email) clone.email = `/${clone.email}/i`;
+        const q: any = {
+            page: params.current,
+            size: params.pageSize,
+            filter: ""
+        }
 
-        let temp = queryString.stringify(clone);
+        const clone = { ...params };
+        if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
+        if (clone.email) {
+            q.filter = clone.name ?
+                q.filter + " and " + `${sfLike("email", clone.email)}`
+                : `${sfLike("email", clone.email)}`;
+        }
+
+        if (!q.filter) delete q.filter;
+        let temp = queryString.stringify(q);
 
         let sortBy = "";
         if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
         }
         if (sort && sort.email) {
-            sortBy = sort.email === 'ascend' ? "sort=email" : "sort=-email";
+            sortBy = sort.email === 'ascend' ? "sort=email,asc" : "sort=email,desc";
         }
         if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
         if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
-        temp += "&populate=role&fields=role._id, role.name";
 
         return temp;
     }
@@ -189,7 +211,7 @@ const UserPage = () => {
                 <DataTable<IUser>
                     actionRef={tableRef}
                     headerTitle="Danh sách Users"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={users}
@@ -200,7 +222,7 @@ const UserPage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,
@@ -234,7 +256,7 @@ const UserPage = () => {
                 dataInit={dataInit}
                 setDataInit={setDataInit}
             />
-        </div>
+        </div >
     )
 }
 

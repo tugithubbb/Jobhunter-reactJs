@@ -16,7 +16,7 @@ const RegisterPage = () => {
         setIsSubmit(true);
         const res = await callRegister(name, email, password as string, +age, gender, address);
         setIsSubmit(false);
-        if (res?.data?._id) {
+        if (res?.data?.id) {
             message.success('Đăng ký tài khoản thành công!');
             navigate('/login')
         } else {
@@ -95,9 +95,9 @@ const RegisterPage = () => {
                                     // onChange={onGenderChange}
                                     allowClear
                                 >
-                                    <Option value="male">Nam</Option>
-                                    <Option value="female">Nữ</Option>
-                                    <Option value="other">Khác</Option>
+                                    <Option value="MALE">Nam</Option>
+                                    <Option value="FEMALE">Nữ</Option>
+                                    <Option value="OTHER">Khác</Option>
                                 </Select>
                             </Form.Item>
 

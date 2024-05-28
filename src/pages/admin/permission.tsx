@@ -27,16 +27,16 @@ const PermissionPage = () => {
     const permissions = useAppSelector(state => state.permission.result);
     const dispatch = useAppDispatch();
 
-    const handleDeletePermission = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeletePermission(_id);
-            if (res && res.data) {
+    const handleDeletePermission = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeletePermission(id);
+            if (res && res.statusCode === 200) {
                 message.success('Xóa Permission thành công');
                 reloadTable();
             } else {
                 notification.error({
                     message: 'Có lỗi xảy ra',
-                    description: res.message
+                    description: res.error
                 });
             }
         }
@@ -49,15 +49,15 @@ const PermissionPage = () => {
     const columns: ProColumns<IPermission>[] = [
         {
             title: 'Id',
-            dataIndex: '_id',
-            width: 250,
+            dataIndex: 'id',
+            width: 50,
             render: (text, record, index, action) => {
                 return (
                     <a href="#" onClick={() => {
                         setOpenViewDetail(true);
                         setDataInit(record);
                     }}>
-                        {record._id}
+                        {record.id}
                     </a>
                 )
             },
@@ -95,7 +95,7 @@ const PermissionPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -107,7 +107,7 @@ const PermissionPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -143,7 +143,7 @@ const PermissionPage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa permission"}
                             description={"Bạn có chắc chắn muốn xóa permission này ?"}
-                            onConfirm={() => handleDeletePermission(entity._id)}
+                            onConfirm={() => handleDeletePermission(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -165,37 +165,43 @@ const PermissionPage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
-        if (clone.apiPath) clone.apiPath = `/${clone.apiPath}/i`;
-        if (clone.method) clone.method = `/${clone.method}/i`;
-        if (clone.module) clone.module = `/${clone.module}/i`;
 
+        let parts = [];
+        if (clone.name) parts.push(`name ~ '${clone.name}'`);
+        if (clone.apiPath) parts.push(`apiPath ~ '${clone.apiPath}'`);
+        if (clone.method) parts.push(`method ~ '${clone.method}'`);
+        if (clone.module) parts.push(`module ~ '${clone.module}'`);
+
+        clone.filter = parts.join(' and ');
+        if (!clone.filter) delete clone.filter;
+
+        clone.page = clone.current;
+        clone.size = clone.pageSize;
+
+        delete clone.current;
+        delete clone.pageSize;
+        delete clone.name;
+        delete clone.apiPath;
+        delete clone.method;
+        delete clone.module;
 
         let temp = queryString.stringify(clone);
 
         let sortBy = "";
-        if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
-        }
-        if (sort && sort.apiPath) {
-            sortBy = sort.apiPath === 'ascend' ? "sort=apiPath" : "sort=-apiPath";
-        }
-        if (sort && sort.method) {
-            sortBy = sort.method === 'ascend' ? "sort=method" : "sort=-method";
-        }
-        if (sort && sort.module) {
-            sortBy = sort.module === 'ascend' ? "sort=module" : "sort=-module";
-        }
-        if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
-        }
-        if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+        const fields = ["name", "apiPath", "method", "module", "createdAt", "updatedAt"];
+
+        if (sort) {
+            for (const field of fields) {
+                if (sort[field]) {
+                    sortBy = `sort=${field},${sort[field] === 'ascend' ? 'asc' : 'desc'}`;
+                    break;  // Remove this if you want to handle multiple sort parameters
+                }
+            }
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
@@ -211,7 +217,7 @@ const PermissionPage = () => {
                 <DataTable<IPermission>
                     actionRef={tableRef}
                     headerTitle="Danh sách Permissions (Quyền Hạn)"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={permissions}
@@ -222,7 +228,7 @@ const PermissionPage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,

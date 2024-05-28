@@ -22,14 +22,14 @@ const ModalPermission = (props: IProps) => {
 
     const submitPermission = async (valuesForm: any) => {
         const { name, apiPath, method, module } = valuesForm;
-        if (dataInit?._id) {
+        if (dataInit?.id) {
             //update
             const permission = {
                 name,
                 apiPath, method, module
             }
 
-            const res = await callUpdatePermission(permission, dataInit._id);
+            const res = await callUpdatePermission(permission, dataInit.id);
             if (res.data) {
                 message.success("Cập nhật permission thành công");
                 handleReset();
@@ -37,7 +37,7 @@ const ModalPermission = (props: IProps) => {
             } else {
                 notification.error({
                     message: 'Có lỗi xảy ra',
-                    description: res.message
+                    description: res.error
                 });
             }
         } else {
@@ -69,7 +69,7 @@ const ModalPermission = (props: IProps) => {
     return (
         <>
             <ModalForm
-                title={<>{dataInit?._id ? "Cập nhật Permission" : "Tạo mới Permission"}</>}
+                title={<>{dataInit?.id ? "Cập nhật Permission" : "Tạo mới Permission"}</>}
                 open={openModal}
                 modalProps={{
                     onCancel: () => { handleReset() },
@@ -78,14 +78,14 @@ const ModalPermission = (props: IProps) => {
                     width: isMobile ? "100%" : 900,
                     keyboard: false,
                     maskClosable: false,
-                    okText: <>{dataInit?._id ? "Cập nhật" : "Tạo mới"}</>,
+                    okText: <>{dataInit?.id ? "Cập nhật" : "Tạo mới"}</>,
                     cancelText: "Hủy"
                 }}
                 scrollToFirstError={true}
                 preserve={false}
                 form={form}
                 onFinish={submitPermission}
-                initialValues={dataInit?._id ? dataInit : {}}
+                initialValues={dataInit?.id ? dataInit : {}}
             >
                 <Row gutter={16}>
                     <Col lg={12} md={12} sm={24} xs={24}>

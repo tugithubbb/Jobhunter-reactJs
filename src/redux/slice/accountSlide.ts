@@ -16,20 +16,20 @@ interface IState {
     isRefreshToken: boolean;
     errorRefreshToken: string;
     user: {
-        _id: string;
+        id: string;
         email: string;
         name: string;
         role: {
-            _id: string;
-            name: string;
+            id?: string;
+            name?: string;
+            permissions?: {
+                id: string;
+                name: string;
+                apiPath: string;
+                method: string;
+                module: string;
+            }[]
         }
-        permissions: {
-            _id: string;
-            name: string;
-            apiPath: string;
-            method: string;
-            module: string;
-        }[]
     };
     activeMenu: string;
 }
@@ -40,14 +40,14 @@ const initialState: IState = {
     isRefreshToken: false,
     errorRefreshToken: "",
     user: {
-        _id: "",
+        id: "",
         email: "",
         name: "",
         role: {
-            _id: "",
+            id: "",
             name: "",
+            permissions: [],
         },
-        permissions: [],
     },
 
     activeMenu: 'home'
@@ -66,24 +66,26 @@ export const accountSlide = createSlice({
         setUserLoginInfo: (state, action) => {
             state.isAuthenticated = true;
             state.isLoading = false;
-            state.user._id = action?.payload?._id;
+            state.user.id = action?.payload?.id;
             state.user.email = action.payload.email;
             state.user.name = action.payload.name;
             state.user.role = action?.payload?.role;
-            state.user.permissions = action?.payload?.permissions;
+
+            if (!action?.payload?.user?.role) state.user.role = {};
+            state.user.role.permissions = action?.payload?.role?.permissions ?? [];
         },
         setLogoutAction: (state, action) => {
             localStorage.removeItem('access_token');
             state.isAuthenticated = false;
             state.user = {
-                _id: "",
+                id: "",
                 email: "",
                 name: "",
                 role: {
-                    _id: "",
+                    id: "",
                     name: "",
+                    permissions: [],
                 },
-                permissions: [],
             }
         },
         setRefreshTokenAction: (state, action) => {
@@ -105,11 +107,12 @@ export const accountSlide = createSlice({
             if (action.payload) {
                 state.isAuthenticated = true;
                 state.isLoading = false;
-                state.user._id = action?.payload?.user?._id;
+                state.user.id = action?.payload?.user?.id;
                 state.user.email = action.payload.user?.email;
                 state.user.name = action.payload.user?.name;
                 state.user.role = action?.payload?.user?.role;
-                state.user.permissions = action?.payload?.user?.permissions;
+                if (!action?.payload?.user?.role) state.user.role = {};
+                state.user.role.permissions = action?.payload?.user?.role?.permissions ?? [];
             }
         })
 

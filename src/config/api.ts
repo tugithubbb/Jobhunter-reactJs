@@ -1,4 +1,4 @@
-import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISubscribers } from '@/types/backend';
+import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers } from '@/types/backend';
 import axios from 'config/axios-customize';
 
 /**
@@ -30,14 +30,15 @@ export const callLogout = () => {
  */
 export const callUploadSingleFile = (file: any, folderType: string) => {
     const bodyFormData = new FormData();
-    bodyFormData.append('fileUpload', file);
+    bodyFormData.append('file', file);
+    bodyFormData.append('folder', folderType);
+
     return axios<IBackendRes<{ fileName: string }>>({
         method: 'post',
-        url: '/api/v1/files/upload',
+        url: '/api/v1/files',
         data: bodyFormData,
         headers: {
             "Content-Type": "multipart/form-data",
-            "folder_type": folderType
         },
     });
 }
@@ -54,7 +55,7 @@ export const callCreateCompany = (name: string, address: string, description: st
 }
 
 export const callUpdateCompany = (id: string, name: string, address: string, description: string, logo: string) => {
-    return axios.patch<IBackendRes<ICompany>>(`/api/v1/companies/${id}`, { name, address, description, logo })
+    return axios.put<IBackendRes<ICompany>>(`/api/v1/companies`, { id, name, address, description, logo })
 }
 
 export const callDeleteCompany = (id: string) => {
@@ -69,6 +70,27 @@ export const callFetchCompanyById = (id: string) => {
     return axios.get<IBackendRes<ICompany>>(`/api/v1/companies/${id}`);
 }
 
+/**
+ * 
+Module Skill
+ */
+export const callCreateSkill = (name: string) => {
+    return axios.post<IBackendRes<ISkill>>('/api/v1/skills', { name })
+}
+
+export const callUpdateSkill = (id: string, name: string) => {
+    return axios.put<IBackendRes<ISkill>>(`/api/v1/skills`, { id, name })
+}
+
+export const callDeleteSkill = (id: string) => {
+    return axios.delete<IBackendRes<ISkill>>(`/api/v1/skills/${id}`);
+}
+
+export const callFetchAllSkill = (query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<ISkill>>>(`/api/v1/skills?${query}`);
+}
+
+
 
 /**
  * 
@@ -79,7 +101,7 @@ export const callCreateUser = (user: IUser) => {
 }
 
 export const callUpdateUser = (user: IUser) => {
-    return axios.patch<IBackendRes<IUser>>(`/api/v1/users`, { ...user })
+    return axios.put<IBackendRes<IUser>>(`/api/v1/users`, { ...user })
 }
 
 export const callDeleteUser = (id: string) => {
@@ -99,7 +121,7 @@ export const callCreateJob = (job: IJob) => {
 }
 
 export const callUpdateJob = (job: IJob, id: string) => {
-    return axios.patch<IBackendRes<IJob>>(`/api/v1/jobs/${id}`, { ...job })
+    return axios.put<IBackendRes<IJob>>(`/api/v1/jobs`, { id, ...job })
 }
 
 export const callDeleteJob = (id: string) => {
@@ -118,12 +140,21 @@ export const callFetchJobById = (id: string) => {
  * 
 Module Resume
  */
-export const callCreateResume = (url: string, companyId: any, jobId: any) => {
-    return axios.post<IBackendRes<IResume>>('/api/v1/resumes', { url, companyId, jobId })
+export const callCreateResume = (url: string, jobId: any, email: string, userId: string | number) => {
+    return axios.post<IBackendRes<IResume>>('/api/v1/resumes', {
+        email, url,
+        status: "PENDING",
+        user: {
+            "id": userId
+        },
+        job: {
+            "id": jobId
+        }
+    })
 }
 
 export const callUpdateResumeStatus = (id: any, status: string) => {
-    return axios.patch<IBackendRes<IResume>>(`/api/v1/resumes/${id}`, { status })
+    return axios.put<IBackendRes<IResume>>(`/api/v1/resumes`, { id, status })
 }
 
 export const callDeleteResume = (id: string) => {
@@ -139,7 +170,7 @@ export const callFetchResumeById = (id: string) => {
 }
 
 export const callFetchResumeByUser = () => {
-    return axios.post<IBackendRes<IResume[]>>(`/api/v1/resumes/by-user`);
+    return axios.post<IBackendRes<IModelPaginate<IResume>>>(`/api/v1/resumes/by-user`);
 }
 
 /**
@@ -151,7 +182,7 @@ export const callCreatePermission = (permission: IPermission) => {
 }
 
 export const callUpdatePermission = (permission: IPermission, id: string) => {
-    return axios.patch<IBackendRes<IPermission>>(`/api/v1/permissions/${id}`, { ...permission })
+    return axios.put<IBackendRes<IPermission>>(`/api/v1/permissions`, { id, ...permission })
 }
 
 export const callDeletePermission = (id: string) => {
@@ -175,7 +206,7 @@ export const callCreateRole = (role: IRole) => {
 }
 
 export const callUpdateRole = (role: IRole, id: string) => {
-    return axios.patch<IBackendRes<IRole>>(`/api/v1/roles/${id}`, { ...role })
+    return axios.put<IBackendRes<IRole>>(`/api/v1/roles`, { id, ...role })
 }
 
 export const callDeleteRole = (id: string) => {
@@ -203,7 +234,7 @@ export const callGetSubscriberSkills = () => {
 }
 
 export const callUpdateSubscriber = (subs: ISubscribers) => {
-    return axios.patch<IBackendRes<ISubscribers>>(`/api/v1/subscribers`, { ...subs })
+    return axios.put<IBackendRes<ISubscribers>>(`/api/v1/subscribers`, { ...subs })
 }
 
 export const callDeleteSubscriber = (id: string) => {

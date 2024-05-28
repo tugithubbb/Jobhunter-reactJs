@@ -9,6 +9,7 @@ export const SKILLS_LIST =
         { label: "Nest.JS", value: "NEST.JS" },
         { label: "TypeScript", value: "TYPESCRIPT" },
         { label: "Java", value: "JAVA" },
+        { label: "Java Spring", value: "JAVA SPRING" },
         { label: "Frontend", value: "FRONTEND" },
         { label: "Backend", value: "BACKEND" },
         { label: "Fullstack", value: "FULLSTACK" }
@@ -20,7 +21,6 @@ export const LOCATION_LIST =
         { label: "Hồ Chí Minh", value: "HOCHIMINH" },
         { label: "Đà Nẵng", value: "DANANG" },
         { label: "Others", value: "OTHER" },
-        { label: "Tất cả thành phố", value: "ALL" },
     ];
 
 export const nonAccentVietnamese = (str: string) => {

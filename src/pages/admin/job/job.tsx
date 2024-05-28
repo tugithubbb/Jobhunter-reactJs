@@ -3,8 +3,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IJob } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns, ProFormSelect } from '@ant-design/pro-components';
-import { Button, Popconfirm, Select, Space, Tag, message, notification } from "antd";
-import { useState, useRef } from 'react';
+import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
+import { useRef } from 'react';
 import dayjs from 'dayjs';
 import { callDeleteJob } from "@/config/api";
 import queryString from 'query-string';
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchJob } from "@/redux/slice/jobSlide";
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
+import { sfIn } from "spring-filter-query-builder";
 
 const JobPage = () => {
     const tableRef = useRef<ActionType>();
@@ -22,9 +23,9 @@ const JobPage = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const handleDeleteJob = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteJob(_id);
+    const handleDeleteJob = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteJob(id);
             if (res && res.data) {
                 message.success('Xóa Job thành công');
                 reloadTable();
@@ -50,7 +51,7 @@ const JobPage = () => {
             render: (text, record, index) => {
                 return (
                     <>
-                        {(index + 1) + (meta.current - 1) * (meta.pageSize)}
+                        {(index + 1) + (meta.page - 1) * (meta.pageSize)}
                     </>)
             },
             hideInSearch: true,
@@ -59,6 +60,12 @@ const JobPage = () => {
             title: 'Tên Job',
             dataIndex: 'name',
             sorter: true,
+        },
+        {
+            title: 'Công ty',
+            dataIndex: ["company", "name"],
+            sorter: true,
+            hideInSearch: true,
         },
         {
             title: 'Mức lương',
@@ -90,11 +97,11 @@ const JobPage = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActive',
+            dataIndex: 'active',
             render(dom, entity, index, action, schema) {
                 return <>
-                    <Tag color={entity.isActive ? "lime" : "red"} >
-                        {entity.isActive ? "ACTIVE" : "INACTIVE"}
+                    <Tag color={entity.active ? "lime" : "red"} >
+                        {entity.active ? "ACTIVE" : "INACTIVE"}
                     </Tag>
                 </>
             },
@@ -108,7 +115,7 @@ const JobPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -120,7 +127,7 @@ const JobPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -132,7 +139,7 @@ const JobPage = () => {
             width: 50,
             render: (_value, entity, _index, _action) => (
                 <Space>
-                    <Access
+                    < Access
                         permission={ALL_PERMISSIONS.JOBS.UPDATE}
                         hideChildren
                     >
@@ -143,10 +150,10 @@ const JobPage = () => {
                             }}
                             type=""
                             onClick={() => {
-                                navigate(`/admin/job/upsert?id=${entity._id}`)
+                                navigate(`/admin/job/upsert?id=${entity.id}`)
                             }}
                         />
-                    </Access>
+                    </Access >
                     <Access
                         permission={ALL_PERMISSIONS.JOBS.DELETE}
                         hideChildren
@@ -155,7 +162,7 @@ const JobPage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa job"}
                             description={"Bạn có chắc chắn muốn xóa job này ?"}
-                            onConfirm={() => handleDeleteJob(entity._id)}
+                            onConfirm={() => handleDeleteJob(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -169,39 +176,50 @@ const JobPage = () => {
                             </span>
                         </Popconfirm>
                     </Access>
-                </Space>
+                </Space >
             ),
 
         },
     ];
 
     const buildQuery = (params: any, sort: any, filter: any) => {
+
         const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
-        if (clone.salary) clone.salary = `/${clone.salary}/i`;
+        let parts = [];
+        if (clone.name) parts.push(`name ~ '${clone.name}'`);
+        if (clone.salary) parts.push(`salary ~ '${clone.salary}'`);
         if (clone?.level?.length) {
-            clone.level = clone.level.join(",");
+            parts.push(`${sfIn("level", clone.level).toString()}`);
         }
+
+        clone.filter = parts.join(' and ');
+        if (!clone.filter) delete clone.filter;
+
+        clone.page = clone.current;
+        clone.size = clone.pageSize;
+
+        delete clone.current;
+        delete clone.pageSize;
+        delete clone.name;
+        delete clone.salary;
+        delete clone.level;
 
         let temp = queryString.stringify(clone);
 
         let sortBy = "";
-        if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
-        }
-        if (sort && sort.salary) {
-            sortBy = sort.salary === 'ascend' ? "sort=salary" : "sort=-salary";
-        }
-        if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
-        }
-        if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+        const fields = ["name", "salary", "createdAt", "updatedAt"];
+        if (sort) {
+            for (const field of fields) {
+                if (sort[field]) {
+                    sortBy = `sort=${field},${sort[field] === 'ascend' ? 'asc' : 'desc'}`;
+                    break;  // Remove this if you want to handle multiple sort parameters
+                }
+            }
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
@@ -217,7 +235,7 @@ const JobPage = () => {
                 <DataTable<IJob>
                     actionRef={tableRef}
                     headerTitle="Danh sách Jobs"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={jobs}
@@ -228,7 +246,7 @@ const JobPage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,
@@ -249,7 +267,7 @@ const JobPage = () => {
                     }}
                 />
             </Access>
-        </div>
+        </div >
     )
 }
 

@@ -12,6 +12,7 @@ import { callDeleteCompany } from "@/config/api";
 import queryString from 'query-string';
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
+import { sfLike } from "spring-filter-query-builder";
 
 const CompanyPage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -24,10 +25,10 @@ const CompanyPage = () => {
     const companies = useAppSelector(state => state.company.result);
     const dispatch = useAppDispatch();
 
-    const handleDeleteCompany = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteCompany(_id);
-            if (res && res.data) {
+    const handleDeleteCompany = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteCompany(id);
+            if (res && +res.statusCode === 200) {
                 message.success('Xóa Company thành công');
                 reloadTable();
             } else {
@@ -52,21 +53,8 @@ const CompanyPage = () => {
             render: (text, record, index) => {
                 return (
                     <>
-                        {(index + 1) + (meta.current - 1) * (meta.pageSize)}
+                        {(index + 1) + (meta.page - 1) * (meta.pageSize)}
                     </>)
-            },
-            hideInSearch: true,
-        },
-        {
-            title: 'Id',
-            dataIndex: '_id',
-            width: 250,
-            render: (text, record, index, action) => {
-                return (
-                    <span>
-                        {record._id}
-                    </span>
-                )
             },
             hideInSearch: true,
         },
@@ -88,7 +76,7 @@ const CompanyPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -100,7 +88,7 @@ const CompanyPage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -112,12 +100,10 @@ const CompanyPage = () => {
             width: 50,
             render: (_value, entity, _index, _action) => (
                 <Space>
-                    <Access
+                    < Access
                         permission={ALL_PERMISSIONS.COMPANIES.UPDATE}
                         hideChildren
                     >
-
-
                         <EditOutlined
                             style={{
                                 fontSize: 20,
@@ -129,7 +115,7 @@ const CompanyPage = () => {
                                 setDataInit(entity);
                             }}
                         />
-                    </Access>
+                    </Access >
                     <Access
                         permission={ALL_PERMISSIONS.COMPANIES.DELETE}
                         hideChildren
@@ -138,7 +124,7 @@ const CompanyPage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa company"}
                             description={"Bạn có chắc chắn muốn xóa company này ?"}
-                            onConfirm={() => handleDeleteCompany(entity._id)}
+                            onConfirm={() => handleDeleteCompany(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -152,7 +138,7 @@ const CompanyPage = () => {
                             </span>
                         </Popconfirm>
                     </Access>
-                </Space>
+                </Space >
             ),
 
         },
@@ -160,28 +146,42 @@ const CompanyPage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
-        if (clone.address) clone.address = `/${clone.address}/i`;
+        const q: any = {
+            page: params.current,
+            size: params.pageSize,
+            filter: ""
+        }
 
-        let temp = queryString.stringify(clone);
+
+
+        if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
+        if (clone.address) {
+            q.filter = clone.name ?
+                q.filter + " and " + `${sfLike("address", clone.address)}`
+                : `${sfLike("address", clone.address)}`;
+        }
+
+        if (!q.filter) delete q.filter;
+
+        let temp = queryString.stringify(q);
 
         let sortBy = "";
         if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
         }
         if (sort && sort.address) {
-            sortBy = sort.address === 'ascend' ? "sort=address" : "sort=-address";
+            sortBy = sort.address === 'ascend' ? "sort=address,asc" : "sort=address,desc";
         }
         if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
         if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
@@ -197,7 +197,7 @@ const CompanyPage = () => {
                 <DataTable<ICompany>
                     actionRef={tableRef}
                     headerTitle="Danh sách Công Ty"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={companies}
@@ -208,7 +208,7 @@ const CompanyPage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,
@@ -241,7 +241,7 @@ const CompanyPage = () => {
                 dataInit={dataInit}
                 setDataInit={setDataInit}
             />
-        </div>
+        </div >
     )
 }
 

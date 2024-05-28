@@ -6,16 +6,23 @@ import styles from 'styles/admin.module.scss';
 import { LOCATION_LIST, SKILLS_LIST } from "@/config/utils";
 import { ICompanySelect } from "../user/modal.user";
 import { useState, useEffect } from 'react';
-import { callCreateJob, callFetchCompany, callFetchJobById, callUpdateJob } from "@/config/api";
+import { callCreateJob, callFetchAllSkill, callFetchCompany, callFetchJobById, callUpdateJob } from "@/config/api";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { CheckSquareOutlined } from "@ant-design/icons";
 import enUS from 'antd/lib/locale/en_US';
 import dayjs from 'dayjs';
-import { IJob } from "@/types/backend";
+import { IJob, ISkill } from "@/types/backend";
+
+interface ISkillSelect {
+    label: string;
+    value: string;
+    key?: string;
+}
 
 const ViewUpsertJob = (props: any) => {
     const [companies, setCompanies] = useState<ICompanySelect[]>([]);
+    const [skills, setSkills] = useState<ISkillSelect[]>([]);
 
     const navigate = useNavigate();
     const [value, setValue] = useState<string>("");
@@ -28,6 +35,9 @@ const ViewUpsertJob = (props: any) => {
 
     useEffect(() => {
         const init = async () => {
+            const temp = await fetchSkillList();
+            setSkills(temp);
+
             if (id) {
                 const res = await callFetchJobById(id);
                 if (res && res.data) {
@@ -36,19 +46,27 @@ const ViewUpsertJob = (props: any) => {
                     setCompanies([
                         {
                             label: res.data.company?.name as string,
-                            value: `${res.data.company?._id}@#$${res.data.company?.logo}` as string,
-                            key: res.data.company?._id
+                            value: `${res.data.company?.id}@#$${res.data.company?.logo}` as string,
+                            key: res.data.company?.id
                         }
                     ])
 
+                    //skills
+                    const temp: any = res.data?.skills?.map((item: ISkill) => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            key: item.id
+                        }
+                    })
                     form.setFieldsValue({
                         ...res.data,
                         company: {
                             label: res.data.company?.name as string,
-                            value: `${res.data.company?._id}@#$${res.data.company?.logo}` as string,
-                            key: res.data.company?._id
+                            value: `${res.data.company?.id}@#$${res.data.company?.logo}` as string,
+                            key: res.data.company?.id
                         },
-
+                        skills: temp
                     })
                 }
             }
@@ -59,13 +77,27 @@ const ViewUpsertJob = (props: any) => {
 
     // Usage of DebounceSelect
     async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
-        const res = await callFetchCompany(`current=1&pageSize=100&name=/${name}/i`);
+        const res = await callFetchCompany(`page=1&size=100&name ~ '${name}'`);
         if (res && res.data) {
             const list = res.data.result;
             const temp = list.map(item => {
                 return {
                     label: item.name as string,
-                    value: `${item._id}@#$${item.logo}` as string
+                    value: `${item.id}@#$${item.logo}` as string
+                }
+            })
+            return temp;
+        } else return [];
+    }
+
+    async function fetchSkillList(): Promise<ISkillSelect[]> {
+        const res = await callFetchAllSkill(`page=1&size=100`);
+        if (res && res.data) {
+            const list = res.data.result;
+            const temp = list.map(item => {
+                return {
+                    label: item.name as string,
+                    value: `${item.id}` as string
                 }
             })
             return temp;
@@ -73,14 +105,22 @@ const ViewUpsertJob = (props: any) => {
     }
 
     const onFinish = async (values: any) => {
-        if (dataUpdate?._id) {
+        if (dataUpdate?.id) {
             //update
             const cp = values?.company?.value?.split('@#$');
+
+            let arrSkills = [];
+            if (typeof values?.skills?.[0] === 'object') {
+                arrSkills = values?.skills?.map((item: any) => { return { id: item.value } });
+            } else {
+                arrSkills = values?.skills?.map((item: any) => { return { id: +item } });
+            }
+
             const job = {
                 name: values.name,
-                skills: values.skills,
+                skills: arrSkills,
                 company: {
-                    _id: cp && cp.length > 0 ? cp[0] : "",
+                    id: cp && cp.length > 0 ? cp[0] : "",
                     name: values.company.label,
                     logo: cp && cp.length > 1 ? cp[1] : ""
                 },
@@ -91,10 +131,11 @@ const ViewUpsertJob = (props: any) => {
                 description: value,
                 startDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.startDate) ? dayjs(values.startDate, 'DD/MM/YYYY').toDate() : values.startDate,
                 endDate: /[0-9]{2}[/][0-9]{2}[/][0-9]{4}$/.test(values.endDate) ? dayjs(values.endDate, 'DD/MM/YYYY').toDate() : values.endDate,
-                isActive: values.isActive
+                active: values.active,
+
             }
 
-            const res = await callUpdateJob(job, dataUpdate._id);
+            const res = await callUpdateJob(job, dataUpdate.id);
             if (res.data) {
                 message.success("Cập nhật job thành công");
                 navigate('/admin/job')
@@ -107,11 +148,12 @@ const ViewUpsertJob = (props: any) => {
         } else {
             //create
             const cp = values?.company?.value?.split('@#$');
+            const arrSkills = values?.skills?.map((item: string) => { return { id: +item } });
             const job = {
                 name: values.name,
-                skills: values.skills,
+                skills: arrSkills,
                 company: {
-                    _id: cp && cp.length > 0 ? cp[0] : "",
+                    id: cp && cp.length > 0 ? cp[0] : "",
                     name: values.company.label,
                     logo: cp && cp.length > 1 ? cp[1] : ""
                 },
@@ -122,7 +164,7 @@ const ViewUpsertJob = (props: any) => {
                 description: value,
                 startDate: dayjs(values.startDate, 'DD/MM/YYYY').toDate(),
                 endDate: dayjs(values.endDate, 'DD/MM/YYYY').toDate(),
-                isActive: values.isActive
+                active: values.active
             }
 
             const res = await callCreateJob(job);
@@ -165,7 +207,7 @@ const ViewUpsertJob = (props: any) => {
                             {
                                 searchConfig: {
                                     resetText: "Hủy",
-                                    submitText: <>{dataUpdate?._id ? "Cập nhật Job" : "Tạo mới Job"}</>
+                                    submitText: <>{dataUpdate?.id ? "Cập nhật Job" : "Tạo mới Job"}</>
                                 },
                                 onReset: () => navigate('/admin/job'),
                                 render: (_: any, dom: any) => <FooterToolbar>{dom}</FooterToolbar>,
@@ -190,17 +232,17 @@ const ViewUpsertJob = (props: any) => {
                                 <ProFormSelect
                                     name="skills"
                                     label="Kỹ năng yêu cầu"
-                                    options={SKILLS_LIST}
+                                    options={skills}
                                     placeholder="Please select a skill"
                                     rules={[{ required: true, message: 'Vui lòng chọn kỹ năng!' }]}
                                     allowClear
                                     mode="multiple"
                                     fieldProps={{
-                                        showArrow: false
+                                        suffixIcon: null
                                     }}
-
                                 />
                             </Col>
+
                             <Col span={24} md={6}>
                                 <ProFormSelect
                                     name="location"
@@ -247,7 +289,7 @@ const ViewUpsertJob = (props: any) => {
                                 />
                             </Col>
 
-                            {(dataUpdate?._id || !id) &&
+                            {(dataUpdate?.id || !id) &&
                                 <Col span={24} md={6}>
                                     <ProForm.Item
                                         name="company"
@@ -305,7 +347,7 @@ const ViewUpsertJob = (props: any) => {
                             <Col span={24} md={6}>
                                 <ProFormSwitch
                                     label="Trạng thái"
-                                    name="isActive"
+                                    name="active"
                                     checkedChildren="ACTIVE"
                                     unCheckedChildren="INACTIVE"
                                     initialValue={true}

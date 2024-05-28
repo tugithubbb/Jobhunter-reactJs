@@ -12,6 +12,7 @@ import { fetchRole, fetchRoleById } from "@/redux/slice/roleSlide";
 import ModalRole from "@/components/admin/role/modal.role";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import Access from "@/components/share/access";
+import { sfLike } from "spring-filter-query-builder";
 
 const RolePage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -23,10 +24,10 @@ const RolePage = () => {
     const roles = useAppSelector(state => state.role.result);
     const dispatch = useAppDispatch();
 
-    const handleDeleteRole = async (_id: string | undefined) => {
-        if (_id) {
-            const res = await callDeleteRole(_id);
-            if (res && res.data) {
+    const handleDeleteRole = async (id: string | undefined) => {
+        if (id) {
+            const res = await callDeleteRole(id);
+            if (res && res.statusCode === 200) {
                 message.success('Xóa Role thành công');
                 reloadTable();
             } else {
@@ -45,12 +46,12 @@ const RolePage = () => {
     const columns: ProColumns<IRole>[] = [
         {
             title: 'Id',
-            dataIndex: '_id',
+            dataIndex: 'id',
             width: 250,
             render: (text, record, index, action) => {
                 return (
                     <span>
-                        {record._id}
+                        {record.id}
                     </span>
                 )
             },
@@ -63,11 +64,11 @@ const RolePage = () => {
         },
         {
             title: 'Trạng thái',
-            dataIndex: 'isActive',
+            dataIndex: 'active',
             render(dom, entity, index, action, schema) {
                 return <>
-                    <Tag color={entity.isActive ? "lime" : "red"} >
-                        {entity.isActive ? "ACTIVE" : "INACTIVE"}
+                    <Tag color={entity.active ? "lime" : "red"} >
+                        {entity.active ? "ACTIVE" : "INACTIVE"}
                     </Tag>
                 </>
             },
@@ -80,7 +81,7 @@ const RolePage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.createdAt ? dayjs(record.createdAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -92,7 +93,7 @@ const RolePage = () => {
             sorter: true,
             render: (text, record, index, action) => {
                 return (
-                    <>{dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss')}</>
+                    <>{record.updatedAt ? dayjs(record.updatedAt).format('DD-MM-YYYY HH:mm:ss') : ""}</>
                 )
             },
             hideInSearch: true,
@@ -115,7 +116,7 @@ const RolePage = () => {
                             }}
                             type=""
                             onClick={() => {
-                                dispatch(fetchRoleById((entity._id) as string))
+                                dispatch(fetchRoleById((entity.id) as string))
                                 setOpenModal(true);
                             }}
                         />
@@ -128,7 +129,7 @@ const RolePage = () => {
                             placement="leftTop"
                             title={"Xác nhận xóa role"}
                             description={"Bạn có chắc chắn muốn xóa role này ?"}
-                            onConfirm={() => handleDeleteRole(entity._id)}
+                            onConfirm={() => handleDeleteRole(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
                         >
@@ -150,24 +151,32 @@ const RolePage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        if (clone.name) clone.name = `/${clone.name}/i`;
+        const q: any = {
+            page: params.current,
+            size: params.pageSize,
+            filter: ""
+        }
 
-        let temp = queryString.stringify(clone);
+        if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
+
+        if (!q.filter) delete q.filter;
+
+        let temp = queryString.stringify(q);
 
         let sortBy = "";
         if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name" : "sort=-name";
+            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
         }
         if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt" : "sort=-createdAt";
+            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
         }
         if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt" : "sort=-updatedAt";
+            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
         }
 
         //mặc định sort theo updatedAt
         if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=-updatedAt`;
+            temp = `${temp}&sort=updatedAt,desc`;
         } else {
             temp = `${temp}&${sortBy}`;
         }
@@ -183,7 +192,7 @@ const RolePage = () => {
                 <DataTable<IRole>
                     actionRef={tableRef}
                     headerTitle="Danh sách Roles (Vai Trò)"
-                    rowKey="_id"
+                    rowKey="id"
                     loading={isFetching}
                     columns={columns}
                     dataSource={roles}
@@ -194,7 +203,7 @@ const RolePage = () => {
                     scroll={{ x: true }}
                     pagination={
                         {
-                            current: meta.current,
+                            current: meta.page,
                             pageSize: meta.pageSize,
                             showSizeChanger: true,
                             total: meta.total,
