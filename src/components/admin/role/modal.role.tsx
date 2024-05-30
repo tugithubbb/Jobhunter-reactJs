@@ -2,81 +2,30 @@ import { FooterToolbar, ModalForm, ProCard, ProFormSwitch, ProFormText, ProFormT
 import { Col, Form, Row, message, notification } from "antd";
 import { isMobile } from 'react-device-detect';
 import { callCreateRole, callFetchPermission, callUpdateRole } from "@/config/api";
-import { IPermission } from "@/types/backend";
+import { IPermission, IRole } from "@/types/backend";
 import { CheckSquareOutlined } from "@ant-design/icons";
 import ModuleApi from "./module.api";
-import { useState, useEffect } from 'react';
-import groupBy from 'lodash/groupBy';
-import map from 'lodash/map';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { resetSingleRole } from "@/redux/slice/roleSlide";
+import { groupByPermission } from "@/config/utils";
 
 interface IProps {
     openModal: boolean;
     setOpenModal: (v: boolean) => void;
     reloadTable: () => void;
-}
-
-
-
-const ModalRole = (props: IProps) => {
-    const { openModal, setOpenModal, reloadTable } = props;
-    const singleRole = useAppSelector(state => state.role.singleRole);
-    const dispatch = useAppDispatch();
-
-    const [form] = Form.useForm();
-
-    //all backend permissions
-    const [listPermissions, setListPermissions] = useState<{
+    listPermissions: {
         module: string;
         permissions: IPermission[]
-    }[] | null>(null);
+    }[];
+    singleRole: IRole | null;
+    setSingleRole: (v: any) => void;
+}
 
-    const groupByPermission = (data: any[]): { module: string; permissions: IPermission[] }[] => {
-        const groupedData = groupBy(data, x => x.module);
-        return map(groupedData, (value, key) => {
-            return { module: key, permissions: value as IPermission[] };
-        });
-    };
-
-    useEffect(() => {
-        const init = async () => {
-            const res = await callFetchPermission(`page=1&size=100`);
-            if (res.data?.result) {
-                setListPermissions(groupByPermission(res.data?.result))
-            }
-        }
-        init();
-    }, [])
-
-    useEffect(() => {
-        if (listPermissions?.length && singleRole?.id) {
-            form.setFieldsValue({
-                name: singleRole.name,
-                active: singleRole.active,
-                description: singleRole.description
-            })
-            //current permissions of role
-            const userPermissions = groupByPermission(singleRole.permissions);
-
-            listPermissions.forEach(x => {
-                let allCheck = true;
-                x.permissions?.forEach(y => {
-                    const temp = userPermissions.find(z => z.module === x.module);
-
-                    if (temp) {
-                        const isExist = temp.permissions.find(k => k.id === y.id);
-                        if (isExist) {
-                            form.setFieldValue(["permissions", y.id as string], true);
-                        } else allCheck = false;
-                    } else {
-                        allCheck = false;
-                    }
-                })
-                form.setFieldValue(["permissions", x.module], allCheck)
-            })
-        }
-    }, [listPermissions, singleRole])
+const ModalRole = (props: IProps) => {
+    const { openModal, setOpenModal, reloadTable, listPermissions, singleRole, setSingleRole } = props;
+    const dispatch = useAppDispatch();
+    const [form] = Form.useForm();
 
     const submitRole = async (valuesForm: any) => {
         const { description, active, name, permissions } = valuesForm;
@@ -128,7 +77,7 @@ const ModalRole = (props: IProps) => {
     const handleReset = async () => {
         form.resetFields();
         setOpenModal(false);
-        dispatch(resetSingleRole({}));
+        setSingleRole(null);
     }
 
     return (
@@ -208,6 +157,8 @@ const ModalRole = (props: IProps) => {
                             <ModuleApi
                                 form={form}
                                 listPermissions={listPermissions}
+                                singleRole={singleRole}
+                                openModal={openModal}
                             />
 
                         </ProCard>

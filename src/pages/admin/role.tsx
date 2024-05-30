@@ -1,18 +1,19 @@
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { IRole } from "@/types/backend";
+import { IPermission, IRole } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns } from '@ant-design/pro-components';
 import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import dayjs from 'dayjs';
-import { callDeleteRole } from "@/config/api";
+import { callDeleteRole, callFetchPermission } from "@/config/api";
 import queryString from 'query-string';
-import { fetchRole, fetchRoleById } from "@/redux/slice/roleSlide";
+import { fetchRole } from "@/redux/slice/roleSlide";
 import ModalRole from "@/components/admin/role/modal.role";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import Access from "@/components/share/access";
 import { sfLike } from "spring-filter-query-builder";
+import { groupByPermission } from "@/config/utils";
 
 const RolePage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -23,6 +24,27 @@ const RolePage = () => {
     const meta = useAppSelector(state => state.role.meta);
     const roles = useAppSelector(state => state.role.result);
     const dispatch = useAppDispatch();
+
+
+    //all backend permissions
+    const [listPermissions, setListPermissions] = useState<{
+        module: string;
+        permissions: IPermission[]
+    }[] | null>(null);
+
+    //current role
+    const [singleRole, setSingleRole] = useState<IRole | null>(null);
+
+    useEffect(() => {
+        const init = async () => {
+            const res = await callFetchPermission(`page=1&size=100`);
+            if (res.data?.result) {
+                setListPermissions(groupByPermission(res.data?.result))
+            }
+        }
+        init();
+    }, [])
+
 
     const handleDeleteRole = async (id: string | undefined) => {
         if (id) {
@@ -116,7 +138,7 @@ const RolePage = () => {
                             }}
                             type=""
                             onClick={() => {
-                                dispatch(fetchRoleById((entity.id) as string))
+                                setSingleRole(entity);
                                 setOpenModal(true);
                             }}
                         />
@@ -228,6 +250,9 @@ const RolePage = () => {
                 openModal={openModal}
                 setOpenModal={setOpenModal}
                 reloadTable={reloadTable}
+                listPermissions={listPermissions!}
+                singleRole={singleRole}
+                setSingleRole={setSingleRole}
             />
         </div>
     )
