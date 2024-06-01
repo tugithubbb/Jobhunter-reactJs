@@ -168,7 +168,7 @@ export interface IRole {
 }
 
 export interface ISubscribers {
-    _id?: string;
+    id?: string;
     name?: string;
     email?: string;
     skills: string[];
