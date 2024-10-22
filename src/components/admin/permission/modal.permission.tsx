@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect';
 import { callCreatePermission, callUpdatePermission } from "@/config/api";
 import { IPermission } from "@/types/backend";
 import { ALL_MODULES } from "@/config/permissions";
+import { useEffect } from "react";
 
 interface IProps {
     openModal: boolean;
@@ -18,6 +19,12 @@ interface IProps {
 const ModalPermission = (props: IProps) => {
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (dataInit?.id) {
+            form.setFieldsValue(dataInit)
+        }
+    }, [dataInit])
 
 
     const submitPermission = async (valuesForm: any) => {

@@ -45,6 +45,12 @@ const ModalUser = (props: IProps) => {
                     }
                 ])
             }
+            form.setFieldsValue({
+                ...dataInit,
+                role: { label: dataInit.role?.name, value: dataInit.role?.id },
+                company: { label: dataInit.company?.name, value: dataInit.company?.id },
+            })
+
         }
     }, [dataInit]);
 
@@ -163,7 +169,12 @@ const ModalUser = (props: IProps) => {
                 preserve={false}
                 form={form}
                 onFinish={submitUser}
-                initialValues={dataInit?.id ? dataInit : {}}
+                initialValues={dataInit?.id ? {
+                    ...dataInit,
+                    role: { label: dataInit.role?.name, value: dataInit.role?.id },
+                    company: { label: dataInit.company?.name, value: dataInit.company?.id },
+                } : {}}
+
             >
                 <Row gutter={16}>
                     <Col lg={12} md={12} sm={24} xs={24}>

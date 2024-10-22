@@ -47,6 +47,15 @@ const ModalCompany = (props: IProps) => {
     useEffect(() => {
         if (dataInit?.id && dataInit?.description) {
             setValue(dataInit.description);
+            form.setFieldsValue({
+                name: dataInit.name,
+                address: dataInit.address,
+            })
+            setDataLogo([{
+                name: dataInit.logo,
+                uid: uuidv4(),
+            }])
+
         }
     }, [dataInit])
 
